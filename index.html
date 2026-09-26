@@ -69,7 +69,18 @@
     .intro p { font-size: 15px; line-height: 1.7; color: var(--muted); margin-bottom: 14px; }
     .intro .punch { font-family: var(--serif); font-size: 32px; line-height: 1.2; color: var(--ink); margin-top: 26px; }
     .intro .punch em { font-style: italic; }
-    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    /* Email signup */
+    .signup { margin: 40px auto 0; max-width: 440px; }
+    .signup label { display: block; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    .signup-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .signup input {
+      flex: 1 1 220px; min-width: 0; padding: 12px 20px; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit; font-size: 15px;
+    }
+    .signup input::placeholder { color: #9a968c; }
+    .signup input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .signup-msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--muted); }
 
     /* Fade-in on scroll */
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
@@ -119,6 +130,15 @@
     <img class="hero-logo reveal" src="logo.png" alt="Stugz" onerror="this.remove();">
     <div class="eyebrow reveal">A clothing hardware company</div>
     <h1 class="reveal">Mods for<br>your <em>fits.</em></h1>
+    <!-- NOTE: emails aren't saved anywhere yet. Connect this form to a mailing list service. -->
+    <form class="signup reveal" id="signup" novalidate>
+      <label for="signup-email">Signup for the launch drop</label>
+      <div class="signup-row">
+        <input type="email" id="signup-email" name="email" placeholder="you@email.com" autocomplete="email" required>
+        <button class="btn" type="submit">Notify me</button>
+      </div>
+      <div class="signup-msg" id="signup-msg" aria-live="polite"></div>
+    </form>
     <div class="intro reveal">
       <p>Your phone gets mods. Your car gets mods. But your clothes? They stay exactly the way they left the factory.</p>
       <p>We think that's strange.</p>
@@ -145,6 +165,20 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Email signup: check the address and show a confirmation
+    document.getElementById('signup').addEventListener('submit', e => {
+      e.preventDefault();
+      const input = document.getElementById('signup-email');
+      const msg = document.getElementById('signup-msg');
+      if (!input.checkValidity() || !input.value) {
+        msg.textContent = 'Please enter a valid email address, like name@example.com.';
+        input.focus();
+        return;
+      }
+      msg.textContent = "You're on the list. We'll email you when the drop goes live.";
+      e.target.reset();
+    });
 
     // Hide the placeholder label once the background photo loads
     const photo = new Image();
