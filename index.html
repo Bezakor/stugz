@@ -80,14 +80,14 @@
     .signup input::placeholder { color: #9a968c; }
     .signup input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
     .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-    /* Notify me: big neon pixels fill the button on hover */
+    /* Notify me: big neon pixels fill the button; hovering turns it plain black */
     .btn.pixels { position: relative; overflow: hidden; isolation: isolate; }
     .btn.pixels:hover { background: var(--ink); }
     .btn.pixels canvas {
       position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1;
-      opacity: 0; transition: opacity .25s; image-rendering: pixelated;
+      opacity: 1; transition: opacity .25s; image-rendering: pixelated;
     }
-    .btn.pixels:hover canvas, .btn.pixels:focus-visible canvas { opacity: 1; }
+    .btn.pixels:hover canvas, .btn.pixels:focus-visible canvas { opacity: 0; }
     .btn.pixels span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
     .signup-msg.error { color: #b3261e; }
     .btn:disabled { opacity: .6; cursor: wait; }
@@ -220,7 +220,7 @@
       }
     });
 
-    // Notify me button: big neon pixels that shuffle colours wildly while hovered
+    // Notify me button: big neon pixels that shuffle colours wildly, pausing while hovered (button shows black)
     (() => {
       const btn = document.getElementById('notify');
       const canvas = btn.querySelector('canvas');
@@ -248,12 +248,12 @@
         }
         if (!still) raf = requestAnimationFrame(frame);
       };
-      const start = () => { if (!raf) { lastTick = 0; raf = requestAnimationFrame(frame); } };
+      const start = () => { if (!raf) { lastTick = 0; raf = requestAnimationFrame(frame); } };  // with reduced motion, draws one still frame
       const stop = () => { cancelAnimationFrame(raf); raf = null; };
-      btn.addEventListener('pointerenter', start);
-      btn.addEventListener('pointerleave', stop);
-      btn.addEventListener('focus', start);
-      btn.addEventListener('blur', stop);
+      btn.addEventListener('pointerenter', stop);
+      btn.addEventListener('pointerleave', start);
+      // Also pause while the button is scrolled out of view, to save battery
+      new IntersectionObserver(([entry]) => entry.isIntersecting && !btn.matches(':hover') ? start() : stop()).observe(btn);
     })();
 
     // Hide the placeholder label once the background photo loads
