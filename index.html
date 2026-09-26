@@ -74,15 +74,43 @@
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* Poster: fills the first screen; "contain" keeps the whole image (and its lettering) visible,
-       and the dark background matches the poster's edges so any spare space blends in */
+    /* Poster: fills the first screen on a dark background. The "stage" keeps the photo's shape,
+       so the live text on top of it always lands in the same spot on the photo at any screen size. */
     .poster {
       height: 100vh; height: 100svh; min-height: 420px; position: relative;
-      background: #111214 url("background.jpg") center / contain no-repeat;
+      background: #111214; display: grid; place-items: center; overflow: hidden;
+    }
+    .stage {
+      position: relative; aspect-ratio: 2528 / 1684;
+      width: min(100%, calc(max(100svh, 420px) * 2528 / 1684));
+      background: #111214 url("background.jpg") center / cover no-repeat;
+      container-type: inline-size;   /* lets the text below size itself in % of the photo's width (cqw) */
       display: grid; place-items: center;
     }
-    .poster .placeholder { color: #8a8a8a; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
-    .poster.loaded .placeholder { display: none; }
+    .stage .placeholder { color: #8a8a8a; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
+    .stage.loaded .placeholder { display: none; }
+
+    /* Live text laid over the photo. Positions are % of the photo, sizes are % of its width. */
+    .poster h1 {
+      position: absolute; left: 9.1%; top: 6.6%; margin: 0;
+      font-family: var(--serif); font-weight: 400; color: #e4e4e1;
+      font-size: 24.2cqw; line-height: .908; letter-spacing: -0.02em; white-space: nowrap;
+    }
+    .poster h1 em { font-style: italic; }
+    .poster-brand {
+      position: absolute; left: 71.4%; top: 82.6%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: #f1f1ee;
+    }
+    .poster-brand img { width: 11.4cqw; height: auto; filter: invert(1); }  /* black logo file shown in white */
+    .poster-brand span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
+
+    /* "Mods": letters filled with the shuffling neon pixels */
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .pixel-text {
+        color: transparent; -webkit-background-clip: text; background-clip: text;
+        background-color: #e4e4e1; background-repeat: no-repeat; image-rendering: pixelated;
+      }
+    }
     .poster-cta {
       position: absolute; left: 24px; bottom: 24px;
       padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.5);
@@ -96,7 +124,6 @@
     /* Content below the poster */
     .content { padding-block: 72px 96px; text-align: center; }
     .content .signup { margin-top: 0; }
-    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
@@ -106,7 +133,8 @@
     /* Phones and other tall screens: a wide poster can't fill the screen without cropping its lettering,
        so show it edge to edge at its natural shape, with the signup form straight after it */
     @media (max-aspect-ratio: 1/1) {
-      .poster { height: auto; min-height: 0; aspect-ratio: 2528 / 1684; }
+      .poster { height: auto; min-height: 0; }
+      .stage { width: 100%; }
       .poster-cta { display: none; }
       .content { padding-block: 48px 72px; }
     }
@@ -120,13 +148,19 @@
 <body>
 
   <!-- Poster: the first screen. The whole image always shows, on a matching dark background. -->
-  <section class="poster" id="photo" role="img" aria-label="Mods for your fits. Stugz, a clothing hardware company.">
-    <span class="placeholder">Background image goes here</span>
+  <header class="poster">
+    <div class="stage" id="photo">
+      <span class="placeholder">Background image goes here</span>
+      <h1><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
+      <div class="poster-brand">
+        <img src="logo.png" alt="Stugz">
+        <span>A clothing hardware company</span>
+      </div>
+    </div>
     <a class="poster-cta" href="#signup">Sign up for the drop <span aria-hidden="true">↓</span></a>
-  </section>
+  </header>
 
   <main class="content wrap">
-    <h1 class="visually-hidden">Stugz: mods for your fits</h1>
     <!-- Signups go to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
     <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
       <input type="hidden" name="_subject" value="New Stugz launch drop signup">
@@ -202,9 +236,8 @@
     });
 
     // Neon pixel animation: big pixels that shuffle through neon colours.
-    // Used by the Notify me button on hover.
-    const neonPixels = (sizeFrom, draw) => {
-      const PX = 11;              // pixel size, in px on the page (bigger = chunkier)
+    // Used by the Notify me button (on hover) and the word "Mods" in the headline.
+    const neonPixels = (sizeFrom, draw, pixelSize = () => 11) => {  // pixelSize: px on the page (bigger = chunkier)
       const TICK = 70;            // ms between colour changes (smaller = faster)
       const CHANGE = 0.45;        // share of pixels that change colour each tick
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -213,6 +246,7 @@
       let raf = null, lastTick = 0, hues = [];
 
       const frame = now => {
+        const PX = pixelSize();
         const w = Math.ceil(sizeFrom.offsetWidth / PX), h = Math.ceil(sizeFrom.offsetHeight / PX);
         if (canvas.width !== w || canvas.height !== h) {
           canvas.width = w; canvas.height = h;
@@ -249,6 +283,16 @@
       btn.addEventListener('pointerleave', px.stop);
       btn.addEventListener('focus', px.start);
       btn.addEventListener('blur', px.stop);
+    })();
+
+    // "Mods": pixels always running inside the letters, paused when scrolled out of view
+    (() => {
+      const word = document.getElementById('mods');
+      const px = neonPixels(word, (c, PX) => {
+        word.style.backgroundImage = `url(${c.toDataURL()})`;
+        word.style.backgroundSize = `${c.width * PX}px ${c.height * PX}px`;
+      }, () => Math.max(4, Math.round(parseFloat(getComputedStyle(word).fontSize) / 26)));  // pixels scale with the text
+      new IntersectionObserver(([entry]) => entry.isIntersecting ? px.start() : px.stop()).observe(word);
     })();
 
     // Hide the placeholder label once the background photo loads
