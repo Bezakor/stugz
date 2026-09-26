@@ -89,6 +89,13 @@
     }
     .btn.pixels:hover canvas, .btn.pixels:focus-visible canvas { opacity: 1; }
     .btn.pixels span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
+    /* "Mods" in the headline: letters filled with the same shuffling neon pixels */
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .pixel-text {
+        color: transparent; -webkit-background-clip: text; background-clip: text;
+        background-color: var(--ink); background-repeat: no-repeat; image-rendering: pixelated;
+      }
+    }
     .signup-msg.error { color: #b3261e; }
     .btn:disabled { opacity: .6; cursor: wait; }
     .signup-msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--muted); }
@@ -140,7 +147,7 @@
   <header class="hero wrap">
     <img class="hero-logo reveal" src="logo.png" alt="Stugz" onerror="this.remove();">
     <div class="eyebrow reveal">A clothing hardware-modifier company</div>
-    <h1 class="reveal">Mods for<br>your <em>fits.</em></h1>
+    <h1 class="reveal"><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
     <!-- Signups go to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
     <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
       <input type="hidden" name="_subject" value="New Stugz launch drop signup">
@@ -220,19 +227,19 @@
       }
     });
 
-    // Notify me button: big neon pixels that shuffle colours wildly while hovered
-    (() => {
-      const btn = document.getElementById('notify');
-      const canvas = btn.querySelector('canvas');
-      const ctx = canvas.getContext('2d');
-      const PX = 11;              // pixel size, in px of the button (bigger = chunkier)
+    // Neon pixel animation: big pixels that shuffle through neon colours.
+    // Shared by the Notify me button (on hover) and the word "Mods" in the headline.
+    const neonPixels = (sizeFrom, draw) => {
+      const PX = 11;              // pixel size, in px on the page (bigger = chunkier)
       const TICK = 70;            // ms between colour changes (smaller = faster)
       const CHANGE = 0.45;        // share of pixels that change colour each tick
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       let raf = null, lastTick = 0, hues = [];
 
       const frame = now => {
-        const w = Math.ceil(btn.offsetWidth / PX), h = Math.ceil(btn.offsetHeight / PX);
+        const w = Math.ceil(sizeFrom.offsetWidth / PX), h = Math.ceil(sizeFrom.offsetHeight / PX);
         if (canvas.width !== w || canvas.height !== h) {
           canvas.width = w; canvas.height = h;
           hues = Array.from({ length: w * h }, () => Math.random() * 360);
@@ -245,15 +252,39 @@
             ctx.fillStyle = `hsl(${hues[i] % 360}, 100%, 55%)`;
             ctx.fillRect(i % w, Math.floor(i / w), 1, 1);
           }
+          draw(canvas, PX);
         }
         if (!still) raf = requestAnimationFrame(frame);
       };
-      const start = () => { if (!raf) { lastTick = 0; raf = requestAnimationFrame(frame); } };
-      const stop = () => { cancelAnimationFrame(raf); raf = null; };
-      btn.addEventListener('pointerenter', start);
-      btn.addEventListener('pointerleave', stop);
-      btn.addEventListener('focus', start);
-      btn.addEventListener('blur', stop);
+      return {
+        canvas,
+        start: () => { if (!raf) { lastTick = 0; raf = requestAnimationFrame(frame); } },  // with reduced motion, draws one still frame
+        stop: () => { cancelAnimationFrame(raf); raf = null; }
+      };
+    };
+
+    // Notify me button: pixels while hovered
+    (() => {
+      const btn = document.getElementById('notify');
+      const shown = btn.querySelector('canvas');
+      const px = neonPixels(btn, c => {
+        if (shown.width !== c.width || shown.height !== c.height) { shown.width = c.width; shown.height = c.height; }
+        shown.getContext('2d').drawImage(c, 0, 0);
+      });
+      btn.addEventListener('pointerenter', px.start);
+      btn.addEventListener('pointerleave', px.stop);
+      btn.addEventListener('focus', px.start);
+      btn.addEventListener('blur', px.stop);
+    })();
+
+    // "Mods": pixels always running inside the letters, paused when scrolled out of view
+    (() => {
+      const word = document.getElementById('mods');
+      const px = neonPixels(word, (c, PX) => {
+        word.style.backgroundImage = `url(${c.toDataURL()})`;
+        word.style.backgroundSize = `${c.width * PX}px ${c.height * PX}px`;
+      });
+      new IntersectionObserver(([entry]) => entry.isIntersecting ? px.start() : px.stop()).observe(word);
     })();
 
     // Hide the placeholder label once the background photo loads
