@@ -7,7 +7,7 @@
   <meta name="description" content="Stugz is a clothing hardware company. Mods for your fits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #eeeee7;
@@ -16,7 +16,7 @@
       --line: #dcdcd2;
       --accent: #d7261e;
       --card: #e4e4dc;
-      --marker: "Permanent Marker", "Comic Sans MS", cursive;
+      --serif: "Instrument Serif", Georgia, serif;
       --sans: "Inter", system-ui, -apple-system, sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +39,7 @@
       backdrop-filter: blur(10px);
     }
     nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .logo { font-family: var(--marker); font-size: 28px; text-decoration: none; letter-spacing: -0.01em; }
+    .logo { font-family: var(--serif); font-size: 30px; text-decoration: none; letter-spacing: -0.01em; }
     .logo-text span { color: var(--accent); }
     .logo img { height: 32px; width: auto; display: block; }
     .logo .logo-text { display: none; }
@@ -61,14 +61,14 @@
     .hero-logo { height: 72px; width: auto; display: block; margin: 0 auto 24px; }
     .eyebrow { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
     h1 {
-      font-family: var(--marker); font-weight: 400;
-      font-size: clamp(52px, 10vw, 136px); line-height: 1; letter-spacing: -0.01em;
+      font-family: var(--serif); font-weight: 400;
+      font-size: clamp(56px, 11vw, 148px); line-height: .95; letter-spacing: -0.02em;
     }
-    h1 em { font-style: normal; color: var(--accent); }
+    h1 em { font-style: italic; color: var(--accent); }
     .intro { max-width: 500px; margin: 44px auto 0; }
     .intro p { font-size: 15px; line-height: 1.7; color: var(--muted); margin-bottom: 14px; }
-    .intro .punch { font-family: var(--marker); font-size: 26px; color: var(--ink); margin-top: 26px; }
-    .intro .punch em { font-style: normal; color: var(--accent); }
+    .intro .punch { font-family: var(--serif); font-size: 32px; line-height: 1.2; color: var(--ink); margin-top: 26px; }
+    .intro .punch em { font-style: italic; color: var(--accent); }
     .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
     /* Fade-in on scroll */
@@ -87,7 +87,7 @@
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 
-    .trail { position: fixed; pointer-events: none; z-index: 100; }
+    #trail { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
 
     @media (max-width: 820px) {
       .hero { padding-block: 64px 80px; }
@@ -147,41 +147,63 @@
     photo.onload = () => document.getElementById('photo').classList.add('loaded');
     photo.src = 'background.jpg';
 
-    // Cursor trail: little "hardware" shapes pop in behind the mouse and fade away
+    // Cursor trail: a dense cloud of square pixels that dissolves behind the mouse
     const canTrail = matchMedia('(hover: hover) and (pointer: fine)').matches
       && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (canTrail) {
-      const colors = ['#d7261e', '#1b1a17', '#b8b0a3'];
-      const shapes = [
-        c => `<circle cx="20" cy="20" r="15" fill="none" stroke="${c}" stroke-width="3"/><circle cx="20" cy="20" r="6" fill="${c}"/>`,
-        c => `<circle cx="20" cy="20" r="14" fill="${c}"/>`,
-        c => `<rect x="5" y="13" width="30" height="14" rx="7" fill="none" stroke="${c}" stroke-width="3"/>`,
-        c => `<path d="M20 3 L24 16 L37 20 L24 24 L20 37 L16 24 L3 20 L16 16 Z" fill="${c}"/>`,
-        c => `<path d="M12 6 H28 L36 20 L28 34 H12 L4 20 Z" fill="none" stroke="${c}" stroke-width="3"/><circle cx="20" cy="20" r="5" fill="${c}"/>`,
-        c => `<path d="M6 20 Q13 8 20 20 T34 20" fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`
-      ];
-      const pick = a => a[Math.floor(Math.random() * a.length)];
-      let lastX = -999, lastY = -999, i = 0;
+      const PIXEL = 8;            // size of each square, in px
+      const SPREAD = 3;           // how many pixels out from the cursor the cloud reaches
+      const LIFE = 700;           // how long a pixel lasts, in ms
+      const COLOR = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+      const canvas = document.createElement('canvas');
+      canvas.id = 'trail';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      const resize = () => {
+        const dpr = devicePixelRatio || 1;
+        canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize(); addEventListener('resize', resize);
+
+      const cells = new Map();    // "x,y" grid cell -> time it was lit
+      let last = null, running = false;
+
+      const light = (x, y, now) => {
+        for (let n = 0; n < 5; n++) {
+          const dx = Math.round((Math.random() * 2 - 1) * SPREAD);
+          const dy = Math.round((Math.random() * 2 - 1) * SPREAD);
+          if (dx * dx + dy * dy > SPREAD * SPREAD) continue;
+          const gx = Math.floor(x / PIXEL) + dx, gy = Math.floor(y / PIXEL) + dy;
+          cells.set(gx + ',' + gy, now - Math.random() * LIFE * 0.3);
+        }
+      };
+
+      const draw = now => {
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        ctx.fillStyle = COLOR;
+        for (const [key, born] of cells) {
+          const age = (now - born) / LIFE;
+          // each pixel blinks out at a random moment near the end of its life
+          if (age >= 1 || (age > 0.5 && Math.random() < 0.06)) { cells.delete(key); continue; }
+          const [gx, gy] = key.split(',').map(Number);
+          ctx.fillRect(gx * PIXEL, gy * PIXEL, PIXEL, PIXEL);
+        }
+        if (cells.size) requestAnimationFrame(draw); else running = false;
+      };
 
       addEventListener('pointermove', e => {
-        if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 55) return;
-        lastX = e.clientX; lastY = e.clientY;
-
-        const size = 26 + Math.random() * 22;
-        const rot = Math.random() * 90 - 45;
-        const el = document.createElement('div');
-        el.className = 'trail';
-        el.style.cssText = `left:${e.clientX - size / 2}px;top:${e.clientY - size / 2}px;width:${size}px;height:${size}px;`;
-        el.innerHTML = `<svg viewBox="0 0 40 40" width="100%" height="100%">${shapes[i++ % shapes.length](pick(colors))}</svg>`;
-        document.body.appendChild(el);
-
-        el.animate([
-          { transform: `scale(0) rotate(${rot - 40}deg)`, opacity: 1 },
-          { transform: `scale(1.15) rotate(${rot}deg)`, opacity: 1, offset: 0.15 },
-          { transform: `scale(1) rotate(${rot}deg)`, opacity: 1, offset: 0.25 },
-          { transform: `translateY(24px) scale(.6) rotate(${rot + 20}deg)`, opacity: 0 }
-        ], { duration: 1100, easing: 'ease-out' }).onfinish = () => el.remove();
+        const now = performance.now();
+        const from = last || { x: e.clientX, y: e.clientY };
+        const steps = Math.max(1, Math.ceil(Math.hypot(e.clientX - from.x, e.clientY - from.y) / PIXEL));
+        for (let i = 1; i <= steps; i++) {
+          light(from.x + (e.clientX - from.x) * i / steps, from.y + (e.clientY - from.y) * i / steps, now);
+        }
+        last = { x: e.clientX, y: e.clientY };
+        if (!running) { running = true; requestAnimationFrame(draw); }
       });
+      document.addEventListener('pointerleave', () => { last = null; });
     }
   </script>
 </body>
