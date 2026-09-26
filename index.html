@@ -104,18 +104,15 @@
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* Full-screen photo */
+    /* Full-width poster image: always shown whole, so the lettering in it is never cropped.
+       If you swap in an image with a different shape, update the aspect-ratio to its width / height. */
     .photo {
-      height: 100vh; min-height: 480px; position: relative;
+      width: 100%; aspect-ratio: 2528 / 1684; position: relative;
       background: var(--card) url("background.jpg") center / cover no-repeat;
       display: grid; place-items: center;
     }
     .photo .placeholder { color: var(--muted); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
     .photo.loaded .placeholder { display: none; }
-    /* On tall/narrow screens (phones), show the whole photo so the lettering isn't cropped */
-    @media (max-aspect-ratio: 1/1) {
-      .photo { height: auto; min-height: 0; aspect-ratio: 2528 / 1684; }
-    }
 
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
