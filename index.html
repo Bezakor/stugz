@@ -85,6 +85,8 @@
     footer { border-top: 1px solid var(--line); padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 
+    .trail { position: fixed; pointer-events: none; z-index: 100; }
+
     @media (max-width: 820px) {
       .links a:not(.btn) { display: none; }
       .hero { padding-block: 80px 70px; }
@@ -134,6 +136,43 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.15 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Cursor trail: little "hardware" shapes pop in behind the mouse and fade away
+    const canTrail = matchMedia('(hover: hover) and (pointer: fine)').matches
+      && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (canTrail) {
+      const colors = ['#e8542f', '#1b1a17', '#b8b0a3'];
+      const shapes = [
+        c => `<circle cx="20" cy="20" r="15" fill="none" stroke="${c}" stroke-width="3"/><circle cx="20" cy="20" r="6" fill="${c}"/>`,
+        c => `<circle cx="20" cy="20" r="14" fill="${c}"/>`,
+        c => `<rect x="5" y="13" width="30" height="14" rx="7" fill="none" stroke="${c}" stroke-width="3"/>`,
+        c => `<path d="M20 3 L24 16 L37 20 L24 24 L20 37 L16 24 L3 20 L16 16 Z" fill="${c}"/>`,
+        c => `<path d="M12 6 H28 L36 20 L28 34 H12 L4 20 Z" fill="none" stroke="${c}" stroke-width="3"/><circle cx="20" cy="20" r="5" fill="${c}"/>`,
+        c => `<path d="M6 20 Q13 8 20 20 T34 20" fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`
+      ];
+      const pick = a => a[Math.floor(Math.random() * a.length)];
+      let lastX = -999, lastY = -999, i = 0;
+
+      addEventListener('pointermove', e => {
+        if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 55) return;
+        lastX = e.clientX; lastY = e.clientY;
+
+        const size = 26 + Math.random() * 22;
+        const rot = Math.random() * 90 - 45;
+        const el = document.createElement('div');
+        el.className = 'trail';
+        el.style.cssText = `left:${e.clientX - size / 2}px;top:${e.clientY - size / 2}px;width:${size}px;height:${size}px;`;
+        el.innerHTML = `<svg viewBox="0 0 40 40" width="100%" height="100%">${shapes[i++ % shapes.length](pick(colors))}</svg>`;
+        document.body.appendChild(el);
+
+        el.animate([
+          { transform: `scale(0) rotate(${rot - 40}deg)`, opacity: 1 },
+          { transform: `scale(1.15) rotate(${rot}deg)`, opacity: 1, offset: 0.15 },
+          { transform: `scale(1) rotate(${rot}deg)`, opacity: 1, offset: 0.25 },
+          { transform: `translateY(24px) scale(.6) rotate(${rot + 20}deg)`, opacity: 0 }
+        ], { duration: 1100, easing: 'ease-out' }).onfinish = () => el.remove();
+      });
+    }
   </script>
 </body>
 </html>
