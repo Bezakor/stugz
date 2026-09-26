@@ -32,19 +32,6 @@
     a { color: inherit; }
     .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
-    /* Nav */
-    nav {
-      position: sticky; top: 0; z-index: 10;
-      background: color-mix(in srgb, var(--bg) 85%, transparent);
-      backdrop-filter: blur(10px);
-    }
-    nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .logo { font-family: var(--serif); font-size: 30px; text-decoration: none; letter-spacing: -0.01em; }
-    .logo-text span { color: var(--accent); }
-    .logo img { height: 32px; width: auto; display: block; }
-    .logo .logo-text { display: none; }
-    .logo.no-img .logo-text { display: inline; }
-
     /* Buttons */
     .btn {
       display: inline-block; padding: 12px 22px; border-radius: 999px;
@@ -53,18 +40,8 @@
       transition: transform .2s, background .2s;
     }
     .btn:hover { transform: translateY(-2px); background: var(--accent); }
-    .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
-    .btn.ghost:hover { background: var(--card); }
 
-    /* Hero */
-    .hero { padding-block: 100px 110px; text-align: center; }
-    .hero-logo { height: 72px; width: auto; display: block; margin: 0 auto 24px; }
-    .eyebrow { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
-    h1 {
-      font-family: var(--serif); font-weight: 400;
-      font-size: clamp(64px, 20vw, 148px); line-height: .95; letter-spacing: -0.02em;
-    }
-    h1 em { font-style: italic; }
+    /* Intro text */
     .intro { max-width: 400px; margin: 44px auto 0; padding-inline: 12px; }
     .intro p { font-size: 15px; line-height: 1.7; color: var(--muted); margin-bottom: 14px; }
     .intro .punch { font-family: var(--serif); font-size: 32px; line-height: 1.2; color: var(--ink); margin-top: 26px; }
@@ -89,13 +66,6 @@
     }
     .btn.pixels:hover canvas, .btn.pixels:focus-visible canvas { opacity: 1; }
     .btn.pixels span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
-    /* "Mods" in the headline: letters filled with the same shuffling neon pixels */
-    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-      .pixel-text {
-        color: transparent; -webkit-background-clip: text; background-clip: text;
-        background-color: var(--ink); background-repeat: no-repeat; image-rendering: pixelated;
-      }
-    }
     .signup-msg.error { color: #b3261e; }
     .btn:disabled { opacity: .6; cursor: wait; }
     .signup-msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--muted); }
@@ -104,26 +74,77 @@
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* Full-width poster image: always shown whole, so the lettering in it is never cropped.
-       If you swap in an image with a different shape, update the aspect-ratio to its width / height. */
-    .photo {
-      width: 100%; aspect-ratio: 2528 / 1684; position: relative;
-      background: var(--card) url("background.jpg") center / cover no-repeat;
+    /* Poster: fills the first screen on a dark background. The "stage" keeps the photo's shape,
+       so the live text on top of it always lands in the same spot on the photo at any screen size. */
+    .poster {
+      height: 100vh; height: 100svh; min-height: 420px; position: relative;
+      /* matches the left/right edges of the photo, so any spare space either side blends in */
+      background: linear-gradient(#a1a2b4, #b3b3c7); display: grid; place-items: center; overflow: hidden;
+    }
+    .stage {
+      position: relative; aspect-ratio: 2528 / 1684;
+      /* Fill the screen width, trimming at most ~6% off the top and bottom of the photo;
+         on very wide screens it stops growing and the background colour shows at the sides */
+      --fit: calc(max(100svh, 420px) * 2528 / 1684);
+      width: min(max(100%, var(--fit)), calc(var(--fit) * 1.12));
+      flex-shrink: 0;
+      background: #b7b6c8 url("background.jpg") center / cover no-repeat;
+      container-type: inline-size;   /* lets the text below size itself in % of the photo's width (cqw) */
       display: grid; place-items: center;
     }
-    .photo .placeholder { color: var(--muted); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
-    .photo.loaded .placeholder { display: none; }
+    .stage .placeholder { color: #55535f; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
+    .stage.loaded .placeholder { display: none; }
+
+    /* Live text laid over the photo. Positions are % of the photo, sizes are % of its width. */
+    .poster h1 {
+      position: absolute; left: 9.1%; top: 6.6%; margin: 0;
+      font-family: var(--serif); font-weight: 400; color: #ffffff;  /* "for your fits." in white; "Mods" has its own pixel fill */
+      font-size: 24.2cqw; line-height: .908; letter-spacing: -0.02em; white-space: nowrap;
+    }
+    .poster h1 em { font-style: italic; }
+    .poster-brand {
+      position: absolute; left: 71.4%; top: 77%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: var(--ink);
+    }
+    .poster-brand img { width: 11.4cqw; height: auto; }
+    .poster-brand span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
+
+    /* "Mods": letters filled with the shuffling neon pixels */
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .pixel-text {
+        color: transparent; -webkit-background-clip: text; background-clip: text;
+        background-color: var(--ink); background-repeat: no-repeat; image-rendering: pixelated;
+      }
+    }
+    .poster-cta {
+      position: absolute; left: 24px; bottom: 24px;
+      padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(27,26,23,.45);
+      color: var(--ink); text-decoration: none; font-size: 14px; letter-spacing: .04em; white-space: nowrap;
+      background: rgba(255,255,255,.35); backdrop-filter: blur(6px); transition: background .2s, color .2s;
+    }
+    .poster-cta:hover, .poster-cta:focus-visible { background: var(--ink); color: var(--bg); }
+    .poster-cta span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+    @keyframes nudge { 50% { transform: translateY(3px); } }
+
+    /* Content below the poster */
+    .content { padding-block: 72px 96px; text-align: center; }
+    .content .signup { margin-top: 0; }
 
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 
     #trail { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
 
-    @media (max-width: 820px) {
-      .hero { padding-block: 64px 80px; }
-      .hero-logo { height: 56px; }
+    /* Phones and other tall screens: a wide poster can't fill the screen without cropping its lettering,
+       so show it edge to edge at its natural shape, with the signup form straight after it */
+    @media (max-aspect-ratio: 1/1) {
+      .poster { height: auto; min-height: 0; }
+      .stage { width: 100%; }
+      .poster-cta { display: none; }
+      .content { padding-block: 48px 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
+      .poster-cta span { animation: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
       .btn:hover { transform: none; }
     }
@@ -131,20 +152,20 @@
 </head>
 <body>
 
-  <nav>
-    <div class="wrap">
-      <!-- Logo: upload your file as logo.png next to this page. Until then the text below shows instead. -->
-      <a class="logo" href="#" aria-label="Stugz home">
-        <img src="logo.png" alt="Stugz" onerror="this.parentNode.classList.add('no-img'); this.remove();">
-        <span class="logo-text">Stugz<span>.</span></span>
-      </a>
+  <!-- Poster: the first screen. The whole image always shows, on a matching dark background. -->
+  <header class="poster">
+    <div class="stage" id="photo">
+      <span class="placeholder">Background image goes here</span>
+      <h1><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
+      <div class="poster-brand">
+        <img src="logo.png" alt="Stugz">
+        <span>A clothing hardware company</span>
+      </div>
     </div>
-  </nav>
+    <a class="poster-cta" href="#signup">Sign up for the drop <span aria-hidden="true">↓</span></a>
+  </header>
 
-  <header class="hero wrap">
-    <img class="hero-logo reveal" src="logo.png" alt="Stugz" onerror="this.remove();">
-    <div class="eyebrow reveal">A clothing hardware company</div>
-    <h1 class="reveal"><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
+  <main class="content wrap">
     <!-- Signups go to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
     <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
       <input type="hidden" name="_subject" value="New Stugz launch drop signup">
@@ -164,12 +185,7 @@
       <p>Stugz is for people who treat getting dressed like a creative act. So every outfit can be upgraded, personalised, remixed and made yours.</p>
       <p class="punch">Buy less. <em>Mod more.</em><br>Re-wear. Upsell.</p>
     </div>
-  </header>
-
-  <!-- Full-screen image: upload your photo as background.jpg next to this page. -->
-  <section class="photo" id="photo" aria-label="Stugz">
-    <span class="placeholder">Background image goes here</span>
-  </section>
+  </main>
 
   <footer>
     <div class="wrap">
@@ -225,9 +241,8 @@
     });
 
     // Neon pixel animation: big pixels that shuffle through neon colours.
-    // Shared by the Notify me button (on hover) and the word "Mods" in the headline.
-    const neonPixels = (sizeFrom, draw) => {
-      const PX = 11;              // pixel size, in px on the page (bigger = chunkier)
+    // Used by the Notify me button (on hover) and the word "Mods" in the headline.
+    const neonPixels = (sizeFrom, draw, pixelSize = () => 11) => {  // pixelSize: px on the page (bigger = chunkier)
       const TICK = 70;            // ms between colour changes (smaller = faster)
       const CHANGE = 0.45;        // share of pixels that change colour each tick
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -236,6 +251,7 @@
       let raf = null, lastTick = 0, hues = [];
 
       const frame = now => {
+        const PX = pixelSize();
         const w = Math.ceil(sizeFrom.offsetWidth / PX), h = Math.ceil(sizeFrom.offsetHeight / PX);
         if (canvas.width !== w || canvas.height !== h) {
           canvas.width = w; canvas.height = h;
@@ -280,7 +296,7 @@
       const px = neonPixels(word, (c, PX) => {
         word.style.backgroundImage = `url(${c.toDataURL()})`;
         word.style.backgroundSize = `${c.width * PX}px ${c.height * PX}px`;
-      });
+      }, () => Math.max(4, Math.round(parseFloat(getComputedStyle(word).fontSize) / 26)));  // pixels scale with the text
       new IntersectionObserver(([entry]) => entry.isIntersecting ? px.start() : px.stop()).observe(word);
     })();
 
