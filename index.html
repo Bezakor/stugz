@@ -83,6 +83,10 @@
     }
     .photo .placeholder { color: var(--muted); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
     .photo.loaded .placeholder { display: none; }
+    /* On tall/narrow screens (phones), show the whole photo so the lettering isn't cropped */
+    @media (max-aspect-ratio: 1/1) {
+      .photo { height: auto; min-height: 0; aspect-ratio: 2730 / 1536; }
+    }
 
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
