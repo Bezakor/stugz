@@ -80,6 +80,15 @@
     .signup input::placeholder { color: #9a968c; }
     .signup input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
     .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    /* Notify me: a swirl of neon pixels fills the button on hover */
+    .btn.swirl { position: relative; overflow: hidden; isolation: isolate; }
+    .btn.swirl:hover { background: var(--ink); }
+    .btn.swirl canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1;
+      opacity: 0; transition: opacity .25s; image-rendering: pixelated;
+    }
+    .btn.swirl:hover canvas, .btn.swirl:focus-visible canvas { opacity: 1; }
+    .btn.swirl span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
     .signup-msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--muted); }
 
     /* Fade-in on scroll */
@@ -135,7 +144,7 @@
       <label for="signup-email">Signup for the launch drop</label>
       <div class="signup-row">
         <input type="email" id="signup-email" name="email" placeholder="you@email.com" autocomplete="email" required>
-        <button class="btn" type="submit">Notify me</button>
+        <button class="btn swirl" id="notify" type="submit"><canvas aria-hidden="true"></canvas><span>Notify me</span></button>
       </div>
       <div class="signup-msg" id="signup-msg" aria-live="polite"></div>
     </form>
@@ -179,6 +188,39 @@
       msg.textContent = "You're on the list. We'll email you when the drop goes live.";
       e.target.reset();
     });
+
+    // Notify me button: pixel swirl of neon hues while hovered
+    (() => {
+      const btn = document.getElementById('notify');
+      const canvas = btn.querySelector('canvas');
+      const ctx = canvas.getContext('2d');
+      const PX = 4;               // pixel size, in px of the button
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let raf = null;
+
+      const frame = now => {
+        const w = Math.ceil(btn.offsetWidth / PX), h = Math.ceil(btn.offsetHeight / PX);
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        const cx = w / 2, cy = h / 2, t = now / 1000;
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const dx = (x - cx) / h, dy = (y - cy) / h;       // scale by height so the swirl stays round
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const dist = Math.hypot(dx, dy);
+            const hue = angle + dist * 260 - t * 220 + Math.random() * 25;  // spiral arms turning over time
+            ctx.fillStyle = `hsl(${hue % 360}, 100%, ${52 + Math.random() * 10}%)`;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+        if (!still) raf = requestAnimationFrame(frame);
+      };
+      const start = () => { if (!raf) raf = requestAnimationFrame(frame); };
+      const stop = () => { cancelAnimationFrame(raf); raf = null; };
+      btn.addEventListener('pointerenter', start);
+      btn.addEventListener('pointerleave', stop);
+      btn.addEventListener('focus', start);
+      btn.addEventListener('blur', stop);
+    })();
 
     // Hide the placeholder label once the background photo loads
     const photo = new Image();
