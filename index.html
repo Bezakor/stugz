@@ -78,46 +78,51 @@
        so the live text on top of it always lands in the same spot on the photo at any screen size. */
     .poster {
       height: 100vh; height: 100svh; min-height: 420px; position: relative;
-      background: #111214; display: grid; place-items: center; overflow: hidden;
+      /* matches the left/right edges of the photo, so any spare space either side blends in */
+      background: linear-gradient(#a1a2b4, #b3b3c7); display: grid; place-items: center; overflow: hidden;
     }
     .stage {
       position: relative; aspect-ratio: 2528 / 1684;
-      width: min(100%, calc(max(100svh, 420px) * 2528 / 1684));
-      background: #111214 url("background.jpg") center / cover no-repeat;
+      /* Fill the screen width, trimming at most ~6% off the top and bottom of the photo;
+         on very wide screens it stops growing and the background colour shows at the sides */
+      --fit: calc(max(100svh, 420px) * 2528 / 1684);
+      width: min(max(100%, var(--fit)), calc(var(--fit) * 1.12));
+      flex-shrink: 0;
+      background: #b7b6c8 url("background.jpg") center / cover no-repeat;
       container-type: inline-size;   /* lets the text below size itself in % of the photo's width (cqw) */
       display: grid; place-items: center;
     }
-    .stage .placeholder { color: #8a8a8a; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
+    .stage .placeholder { color: #55535f; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
     .stage.loaded .placeholder { display: none; }
 
     /* Live text laid over the photo. Positions are % of the photo, sizes are % of its width. */
     .poster h1 {
       position: absolute; left: 9.1%; top: 6.6%; margin: 0;
-      font-family: var(--serif); font-weight: 400; color: #e4e4e1;
+      font-family: var(--serif); font-weight: 400; color: var(--ink);
       font-size: 24.2cqw; line-height: .908; letter-spacing: -0.02em; white-space: nowrap;
     }
     .poster h1 em { font-style: italic; }
     .poster-brand {
-      position: absolute; left: 71.4%; top: 82.6%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: #f1f1ee;
+      position: absolute; left: 71.4%; top: 77%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: var(--ink);
     }
-    .poster-brand img { width: 11.4cqw; height: auto; filter: invert(1); }  /* black logo file shown in white */
+    .poster-brand img { width: 11.4cqw; height: auto; }
     .poster-brand span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
 
     /* "Mods": letters filled with the shuffling neon pixels */
     @supports ((background-clip: text) or (-webkit-background-clip: text)) {
       .pixel-text {
         color: transparent; -webkit-background-clip: text; background-clip: text;
-        background-color: #e4e4e1; background-repeat: no-repeat; image-rendering: pixelated;
+        background-color: var(--ink); background-repeat: no-repeat; image-rendering: pixelated;
       }
     }
     .poster-cta {
       position: absolute; left: 24px; bottom: 24px;
-      padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,.5);
-      color: #f3f3ee; text-decoration: none; font-size: 14px; letter-spacing: .04em; white-space: nowrap;
-      background: rgba(17,18,20,.55); backdrop-filter: blur(6px); transition: background .2s, color .2s;
+      padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(27,26,23,.45);
+      color: var(--ink); text-decoration: none; font-size: 14px; letter-spacing: .04em; white-space: nowrap;
+      background: rgba(255,255,255,.35); backdrop-filter: blur(6px); transition: background .2s, color .2s;
     }
-    .poster-cta:hover, .poster-cta:focus-visible { background: #f3f3ee; color: #111214; }
+    .poster-cta:hover, .poster-cta:focus-visible { background: var(--ink); color: var(--bg); }
     .poster-cta span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
