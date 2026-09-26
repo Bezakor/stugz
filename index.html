@@ -158,7 +158,11 @@
       const PIXEL = 8;            // size of each square, in px
       const SPREAD = 3;           // how many pixels out from the cursor the cloud reaches
       const LIFE = 700;           // how long a pixel lasts, in ms
-      const COLOR = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      // Neon colours: the base hue slowly cycles round the colour wheel,
+      // and each pixel gets a random nearby hue so the cloud is a mix
+      const HUE_SPEED = 0.12;     // how fast the colours change (degrees per ms)
+      const HUE_MIX = 90;         // how varied the colours are at any moment (degrees)
+      const neon = now => `hsl(${(now * HUE_SPEED + Math.random() * HUE_MIX) % 360}, 100%, 55%)`;
 
       const canvas = document.createElement('canvas');
       canvas.id = 'trail';
@@ -171,7 +175,7 @@
       };
       resize(); addEventListener('resize', resize);
 
-      const cells = new Map();    // "x,y" grid cell -> time it was lit
+      const cells = new Map();    // "x,y" grid cell -> { time it was lit, colour }
       let last = null, running = false;
 
       const light = (x, y, now) => {
@@ -180,18 +184,18 @@
           const dy = Math.round((Math.random() * 2 - 1) * SPREAD);
           if (dx * dx + dy * dy > SPREAD * SPREAD) continue;
           const gx = Math.floor(x / PIXEL) + dx, gy = Math.floor(y / PIXEL) + dy;
-          cells.set(gx + ',' + gy, now - Math.random() * LIFE * 0.3);
+          cells.set(gx + ',' + gy, { born: now - Math.random() * LIFE * 0.3, color: neon(now) });
         }
       };
 
       const draw = now => {
         ctx.clearRect(0, 0, innerWidth, innerHeight);
-        ctx.fillStyle = COLOR;
-        for (const [key, born] of cells) {
+        for (const [key, { born, color }] of cells) {
           const age = (now - born) / LIFE;
           // each pixel blinks out at a random moment near the end of its life
           if (age >= 1 || (age > 0.5 && Math.random() < 0.06)) { cells.delete(key); continue; }
           const [gx, gy] = key.split(',').map(Number);
+          ctx.fillStyle = color;
           ctx.fillRect(gx * PIXEL, gy * PIXEL, PIXEL, PIXEL);
         }
         if (cells.size) requestAnimationFrame(draw); else running = false;
