@@ -134,20 +134,19 @@
     .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
-    /* Closing poster: a portrait photo, always edge to edge across the screen width at its natural shape
-       (so on landscape screens it is taller than the screen and scrolls), with the text laid out
-       like the reference poster (headline across the top, logo and strapline centred below it) */
-    .poster-end { height: auto; min-height: 0; background: #6b5239; }
-    .poster-end .stage { aspect-ratio: 2740 / 3499; width: 100%; background-color: #6b5239; }
-    .poster-end .poster-title { left: 0; right: 0; top: -0.6%; text-align: center; font-size: 33.4cqw; line-height: .88; }  /* longest line spans ~96% of the photo width */
-    .poster-end .poster-brand { left: 50%; top: 50%; gap: 2.2cqw; color: #f1f1ee; }
-    .poster-end .poster-brand img { width: 19.8cqw; filter: invert(1); }  /* black logo file shown in white */
-    .poster-end .poster-brand > span { font-size: max(9px, 2.05cqw); letter-spacing: .01em; }
+    /* Closing poster: a landscape photo like the opening one, so it uses the same full-screen layout
+       and text positions. Its bottom-right corner is dark, so the logo and strapline are white there. */
+    .poster-end { background: #4a2f2c; }
+    .poster-end .stage { background-color: #6b4a44; }
+    .poster-end .poster-title { top: 4%; font-size: 20cqw; }  /* a little smaller than the top poster, leaving room below */
+    .poster-end .poster-brand { top: 66%; color: #f5f3ee; }
+    .poster-end .poster-brand img { filter: invert(1); }  /* black logo file shown in white */
+    .poster-end .poster-brand > span { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
     /* "Sign up for the launch" under the closing poster's strapline: always visible, jumps back up to the form */
     .end-cta {
       margin-top: 1.4cqw; padding: .7em 1.3em; border-radius: 999px; border: 1px solid rgba(255,255,255,.6);
-      color: #fff; text-decoration: none; font-size: clamp(13px, 1.5cqw, 20px); letter-spacing: .04em; white-space: nowrap;
+      color: #fff; text-decoration: none; font-size: clamp(11px, 1.5cqw, 20px); letter-spacing: .04em; white-space: nowrap;
       background: rgba(20,16,10,.25); backdrop-filter: blur(6px); transition: border-color .2s;
     }
     .end-cta .label { position: relative; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
