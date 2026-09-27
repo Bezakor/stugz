@@ -134,18 +134,11 @@
     .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
-    /* Closing poster: a portrait photo, shown whole and full height, with the text laid out
+    /* Closing poster: a portrait photo, always edge to edge across the screen width at its natural shape
+       (so on landscape screens it is taller than the screen and scrolls), with the text laid out
        like the reference poster (headline across the top, logo and strapline centred below it) */
-    .poster-end {
-      /* matches the photo's edges (dark brown wall above, lighter wall below) */
-      background: linear-gradient(#352d1f 0%, #4a3d2d 46%, #775a3f 48%, #917052 100%);
-    }
-    .poster-end .stage {
-      aspect-ratio: 2740 / 3499;
-      --fit: calc(max(100svh, 420px) * 2740 / 3499);
-      width: min(100%, var(--fit));
-      background-color: #6b5239;
-    }
+    .poster-end { height: auto; min-height: 0; background: #6b5239; }
+    .poster-end .stage { aspect-ratio: 2740 / 3499; width: 100%; background-color: #6b5239; }
     .poster-end .poster-title { left: 0; right: 0; top: -0.6%; text-align: center; font-size: 33.4cqw; line-height: .88; }  /* longest line spans ~96% of the photo width */
     .poster-end .poster-brand { left: 50%; top: 50%; gap: 2.2cqw; color: #f1f1ee; }
     .poster-end .poster-brand img { width: 19.8cqw; filter: invert(1); }  /* black logo file shown in white */
