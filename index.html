@@ -316,9 +316,9 @@
     photo.onload = () => document.getElementById('photo').classList.add('loaded');
     photo.src = 'background.jpg';
 
-    // Cursor trail: a dense cloud of square pixels that dissolves behind the mouse
-    const canTrail = matchMedia('(hover: hover) and (pointer: fine)').matches
-      && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Cursor trail: a dense cloud of square pixels that dissolves behind the mouse,
+    // or behind your finger on phones and tablets (tapping, swiping, scrolling)
+    const canTrail = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (canTrail) {
       const PIXEL = 8;            // size of each square, in px
       const SPREAD = 3;           // how many pixels out from the cursor the cloud reaches
@@ -366,17 +366,28 @@
         if (cells.size) requestAnimationFrame(draw); else running = false;
       };
 
-      addEventListener('pointermove', e => {
+      // Light up a line of pixels from the last point to this one, so fast moves leave no gaps
+      const trailTo = (x, y) => {
         const now = performance.now();
-        const from = last || { x: e.clientX, y: e.clientY };
-        const steps = Math.max(1, Math.ceil(Math.hypot(e.clientX - from.x, e.clientY - from.y) / PIXEL));
+        const from = last || { x, y };
+        const steps = Math.max(1, Math.ceil(Math.hypot(x - from.x, y - from.y) / PIXEL));
         for (let i = 1; i <= steps; i++) {
-          light(from.x + (e.clientX - from.x) * i / steps, from.y + (e.clientY - from.y) * i / steps, now);
+          light(from.x + (x - from.x) * i / steps, from.y + (y - from.y) * i / steps, now);
         }
-        last = { x: e.clientX, y: e.clientY };
+        last = { x, y };
         if (!running) { running = true; requestAnimationFrame(draw); }
-      });
+      };
+
+      // Mouse and pen
+      addEventListener('pointermove', e => { if (e.pointerType !== 'touch') trailTo(e.clientX, e.clientY); });
       document.addEventListener('pointerleave', () => { last = null; });
+
+      // Touch: touchmove keeps firing while the page scrolls under the finger.
+      // Passive listeners never block or slow down scrolling.
+      const touch = e => { const t = e.touches[0]; if (t) trailTo(t.clientX, t.clientY); };
+      addEventListener('touchstart', e => { last = null; touch(e); }, { passive: true });
+      addEventListener('touchmove', touch, { passive: true });
+      addEventListener('touchend', () => { last = null; }, { passive: true });
     }
   </script>
 </body>
