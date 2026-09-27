@@ -147,12 +147,8 @@
     .cursor-on.cursor-link .cur-dot { opacity: 0; }
     .cursor-on.cursor-text .cur-ring, .cursor-on.cursor-text .cur-dot { opacity: 0; }
     /* Touch: a faint ring ripples out where you tap */
-    /* Word trail: swear words in the italic serif that appear behind the cursor or finger, then fade away */
-    .curse {
-      position: fixed; left: 0; top: 0; z-index: 99; pointer-events: none; white-space: nowrap;
-      font-family: var(--serif); font-style: italic; font-weight: 300; color: #fff; mix-blend-mode: difference;
-      translate: -50% -50%; will-change: transform, opacity, filter;
-    }
+    .ripple { position: fixed; width: 12px; height: 12px; margin: -6px 0 0 -6px; border: 1px solid rgba(236,230,218,.7); border-radius: 50%; pointer-events: none; z-index: 100; animation: ripple 1s var(--ease) forwards; }
+    @keyframes ripple { to { transform: scale(7); opacity: 0; } }
 
     @media (max-width: 640px) {
       .bar { grid-template-columns: auto 1fr; }
@@ -309,50 +305,15 @@
         requestAnimationFrame(loop);
       };
       loop();
-    }
-
-    // Word trail (mouse, pen and touch): as you move, swear words appear in the italic serif
-    // and dissolve upwards. On phones it follows your finger while you tap, swipe and scroll.
-    if (!still) {
-      const WORDS = ['fuck', 'shit', 'damn', 'hell', 'bollocks', 'bloody hell', 'crap', 'bastard',
-                     'arse', 'piss off', 'bugger', 'sod it', 'christ', 'goddamn', 'screw it', 'holy shit'];
-      const GAP = 110;            // px of movement between words (smaller = more words)
-      const LIFE = 1400;          // ms each word lasts
-      const MAX = 14;             // most words on screen at once
-      let last = null, i = Math.floor(Math.random() * WORDS.length);
-      const live = [];
-
-      const drop = (x, y) => {
-        const el = document.createElement('span');
-        el.className = 'curse';
-        el.textContent = WORDS[i++ % WORDS.length];
-        el.style.fontSize = (18 + Math.random() * 16) + 'px';
-        el.style.left = x + 'px'; el.style.top = y + 'px';
-        document.body.appendChild(el);
-        live.push(el);
-        if (live.length > MAX) live.shift().remove();
-        el.animate([
-          { opacity: 0, transform: 'translateY(6px)', filter: 'blur(3px)' },
-          { opacity: .9, transform: 'translateY(0)', filter: 'blur(0)', offset: .18 },
-          { opacity: .9, transform: 'translateY(-6px)', filter: 'blur(0)', offset: .55 },
-          { opacity: 0, transform: 'translateY(-22px)', filter: 'blur(4px)' }
-        ], { duration: LIFE, easing: 'cubic-bezier(.22,.61,.36,1)' }).onfinish = () => {
-          el.remove(); const k = live.indexOf(el); if (k > -1) live.splice(k, 1);
-        };
-      };
-      const trailTo = (x, y) => {
-        if (last && Math.hypot(x - last.x, y - last.y) < GAP) return;
-        last = { x, y };
-        drop(x, y);
-      };
-
-      addEventListener('pointermove', e => { if (e.pointerType !== 'touch') trailTo(e.clientX, e.clientY); });
-      document.addEventListener('pointerleave', () => { last = null; });
-      // Touch: touchmove keeps firing while the page scrolls under the finger; passive so scrolling stays smooth
-      const touch = e => { const t = e.touches[0]; if (t) trailTo(t.clientX, t.clientY); };
-      addEventListener('touchstart', e => { last = null; touch(e); }, { passive: true });
-      addEventListener('touchmove', touch, { passive: true });
-      addEventListener('touchend', () => { last = null; }, { passive: true });
+    } else if (!still) {
+      // Touch screens: a faint ring ripples out where you tap
+      addEventListener('touchstart', e => {
+        const t = e.touches[0]; if (!t) return;
+        const r = document.createElement('span'); r.className = 'ripple';
+        r.style.left = t.clientX + 'px'; r.style.top = t.clientY + 'px';
+        document.body.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      }, { passive: true });
     }
   </script>
 </body>
