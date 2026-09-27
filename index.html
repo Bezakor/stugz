@@ -113,7 +113,7 @@
       display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: var(--ink);
     }
     .poster-brand img { width: 11.4cqw; height: auto; }
-    .poster-brand span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
+    .poster-brand > span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
 
     /* "Mods": letters filled with the shuffling neon pixels */
     @supports ((background-clip: text) or (-webkit-background-clip: text)) {
@@ -142,11 +142,25 @@
     .poster-end .poster-title { left: 0; right: 0; top: -0.6%; text-align: center; font-size: 33.4cqw; line-height: .88; }  /* longest line spans ~96% of the photo width */
     .poster-end .poster-brand { left: 50%; top: 50%; gap: 2.2cqw; color: #f1f1ee; }
     .poster-end .poster-brand img { width: 19.8cqw; filter: invert(1); }  /* black logo file shown in white */
-    .poster-end .poster-brand span { font-size: max(9px, 2.05cqw); letter-spacing: .01em; }
+    .poster-end .poster-brand > span { font-size: max(9px, 2.05cqw); letter-spacing: .01em; }
+
+    /* "Sign up for the launch" under the closing poster's strapline: always visible, jumps back up to the form */
+    .end-cta {
+      margin-top: 1.4cqw; padding: .7em 1.3em; border-radius: 999px; border: 1px solid rgba(255,255,255,.6);
+      color: #fff; text-decoration: none; font-size: clamp(13px, 1.5cqw, 20px); letter-spacing: .04em; white-space: nowrap;
+      background: rgba(20,16,10,.25); backdrop-filter: blur(6px); transition: border-color .2s;
+    }
+    .end-cta .label { position: relative; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
+    .end-cta:hover, .end-cta:focus-visible { border-color: transparent; }
+    .end-cta:hover .label, .end-cta:focus-visible .label { text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
+    .end-cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    .end-cta .arrow { display: inline-block; animation: nudge-up 1.6s ease-in-out infinite; }
+    @keyframes nudge-up { 50% { transform: translateY(-3px); } }
 
     /* Content below the poster */
     .content { padding-block: 72px 96px; text-align: center; }
     .content .signup { margin-top: 0; }
+    #signup { scroll-margin-top: 56px; }  /* leave space above the form when a "Sign up" button jumps to it */
 
     footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
@@ -162,7 +176,7 @@
       .content { padding-block: 48px 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .poster-cta .arrow { animation: none; }
+      .poster-cta .arrow, .end-cta .arrow { animation: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
       .btn:hover { transform: none; }
     }
@@ -214,9 +228,10 @@
     <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
       <span class="placeholder">Closing image goes here</span>
       <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
-      <div class="poster-brand" aria-hidden="true">
-        <img src="logo.png" alt="">
-        <span>A clothing hardware company</span>
+      <div class="poster-brand">
+        <img src="logo.png" alt="" aria-hidden="true">
+        <span aria-hidden="true">A clothing hardware company</span>
+        <a class="end-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the launch <span class="arrow" aria-hidden="true">↑</span></span></a>
       </div>
     </div>
   </section>
