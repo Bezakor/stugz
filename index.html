@@ -134,6 +134,23 @@
     .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
+    /* Closing poster: a portrait photo, shown whole and full height, with the text laid out
+       like the reference poster (headline across the top, logo and strapline centred below it) */
+    .poster-end {
+      /* matches the photo's edges (dark brown wall above, lighter wall below) */
+      background: linear-gradient(#352d1f 0%, #4a3d2d 46%, #775a3f 48%, #917052 100%);
+    }
+    .poster-end .stage {
+      aspect-ratio: 2740 / 3499;
+      --fit: calc(max(100svh, 420px) * 2740 / 3499);
+      width: min(100%, var(--fit));
+      background-color: #6b5239;
+    }
+    .poster-end .poster-title { left: 0.4%; top: -0.4%; font-size: 29.5cqw; line-height: .92; }
+    .poster-end .poster-brand { left: 51.7%; top: 47.4%; gap: 2.2cqw; color: #f1f1ee; }
+    .poster-end .poster-brand img { width: 19.8cqw; filter: invert(1); }  /* black logo file shown in white */
+    .poster-end .poster-brand span { font-size: max(9px, 2.05cqw); letter-spacing: .01em; }
+
     /* Content below the poster */
     .content { padding-block: 72px 96px; text-align: center; }
     .content .signup { margin-top: 0; }
@@ -202,7 +219,7 @@
   <!-- Closing poster: same layout and live text as the top one. Upload the photo as background-2.jpg. -->
   <section class="poster poster-end" aria-label="Mods for your fits. STugZ, a clothing hardware company.">
     <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
-      <span class="placeholder">Closing image goes here (background-2.jpg)</span>
+      <span class="placeholder">Closing image goes here</span>
       <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
       <div class="poster-brand" aria-hidden="true">
         <img src="logo.png" alt="">
