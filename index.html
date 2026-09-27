@@ -138,8 +138,10 @@
        and text positions. Its bottom-right corner is dark, so the logo and strapline are white there. */
     .poster-end { background: #4a2f2c; }
     .poster-end .stage { background-color: #6b4a44; }
-    .poster-end .poster-title { top: 4%; font-size: 20cqw; }  /* a little smaller than the top poster, leaving room below */
-    .poster-end .poster-brand { top: 66%; color: #f5f3ee; }
+    /* Headline on one centred line, almost the full width of the photo; logo block centred below */
+    .poster-end .poster-title { left: 0; right: 0; top: 5%; text-align: center; font-size: 16.2cqw; line-height: 1; }  /* ~95% of the photo width */
+    .poster-end .poster-title br { display: none; }
+    .poster-end .poster-brand { left: 50%; top: 64%; color: #f5f3ee; }
     .poster-end .poster-brand img { filter: invert(1); }  /* black logo file shown in white */
     .poster-end .poster-brand > span { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
@@ -226,7 +228,7 @@
   <section class="poster poster-end" aria-label="Mods for your fits. STugZ, a clothing hardware company.">
     <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
       <span class="placeholder">Closing image goes here</span>
-      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
+      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for <br>your <em>fits.</em></p>
       <div class="poster-brand">
         <img src="logo.png" alt="" aria-hidden="true">
         <span aria-hidden="true">A clothing hardware company</span>
