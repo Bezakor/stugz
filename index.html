@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stugz — Mods for your fits</title>
-  <meta name="description" content="Stugz is a clothing hardware company. Mods for your fits.">
+  <title>STugZ — Mods for your fits</title>
+  <meta name="description" content="STugZ is a clothing hardware company. Mods for your fits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -40,6 +40,12 @@
       transition: transform .2s, background .2s;
     }
     .btn:hover { transform: translateY(-2px); background: var(--accent); }
+
+    /* Logo and strapline above the body copy */
+    .brand { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 64px; }
+    .brand img { height: 56px; width: auto; }
+    .brand span { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .brand + .intro { margin-top: 32px; }
 
     /* Intro text */
     .intro { max-width: 400px; margin: 44px auto 0; padding-inline: 12px; }
@@ -158,7 +164,7 @@
       <span class="placeholder">Background image goes here</span>
       <h1><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
       <div class="poster-brand">
-        <img src="logo.png" alt="Stugz">
+        <img src="logo.png" alt="STugZ">
         <span>A clothing hardware company</span>
       </div>
     </div>
@@ -168,7 +174,7 @@
   <main class="content wrap">
     <!-- Signups go to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
     <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
-      <input type="hidden" name="_subject" value="New Stugz launch drop signup">
+      <input type="hidden" name="_subject" value="New STugZ launch drop signup">
       <!-- Spam trap: hidden from people, bots fill it in and Formspree ignores those submissions -->
       <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
       <label for="signup-email">Signup for the launch drop</label>
@@ -178,18 +184,22 @@
       </div>
       <div class="signup-msg" id="signup-msg" aria-live="polite"></div>
     </form>
+    <div class="brand reveal">
+      <img src="logo.png" alt="STugZ">
+      <span>A clothing hardware company</span>
+    </div>
     <div class="intro reveal">
       <p>Your phone gets mods. Your car gets mods. But your clothes? They stay exactly the way they left the factory.</p>
       <p>We think that's strange.</p>
-      <p>Stugz are premium hardware mods for clothing. Small, well-made mods that change how your fits look, work and feel. Modify your thrifts to re-wear them or upsell them.</p>
-      <p>Stugz is for people who treat getting dressed like a creative act. So every outfit can be upgraded, personalised, remixed and made yours.</p>
+      <p>STugZ are premium hardware mods for clothing. Small, well-made mods that change how your fits look, work and feel. Modify your thrifts to re-wear them or upsell them.</p>
+      <p>STugZ is for people who treat getting dressed like a creative act. So every outfit can be upgraded, personalised, remixed and made yours.</p>
       <p class="punch">Buy less. <em>Mod more.</em><br>Re-wear. Upsell.</p>
     </div>
   </main>
 
   <footer>
     <div class="wrap">
-      <span>© 2026 Stugz — A clothing hardware company</span>
+      <span>© 2026 STugZ — A clothing hardware company</span>
       <span>Mods for your fits.</span>
     </div>
   </footer>
