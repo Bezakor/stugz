@@ -134,20 +134,23 @@
     .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
-    /* Closing poster: a landscape photo like the opening one, so it uses the same full-screen layout
-       and text positions. Its bottom-right corner is dark, so the logo and strapline are white there. */
-    .poster-end { background: #4a2f2c; }
-    .poster-end .stage { background-color: #6b4a44; }
-    /* Headline on one centred line, almost the full width of the photo; logo block centred below */
-    .poster-end .poster-title { left: 0; right: 0; top: 5%; text-align: center; font-size: 16.2cqw; line-height: 1; }  /* ~95% of the photo width */
-    .poster-end .poster-title br { display: none; }
-    .poster-end .poster-brand { left: 50%; top: 64%; color: #f5f3ee; }
-    .poster-end .poster-brand img { filter: invert(1); }  /* black logo file shown in white */
+    /* Closing poster: laid out like the supplied reference. The photo always spans the full width at its
+       natural shape (never cropped); "Mods for / your fits." fills the upper two-thirds, centred; the white
+       logo and strapline are centred near the bottom; the button sits at the very bottom (below the photo on phones). */
+    .poster-end { height: auto; min-height: 0; display: block; background: #4a2f2c; }
+    .poster-end .stage { width: 100%; aspect-ratio: 2528 / 1684; background-color: #6b4a44; }
+    .poster-end .poster-title { left: 0; right: 0; top: 7.4%; text-align: center; font-size: 24cqw; line-height: .89; }
+    .poster-end .poster-brand { left: 50%; top: 79.5%; color: #f5f3ee; }
+    .poster-end .poster-brand img { width: 11cqw; filter: invert(1); }  /* black logo file shown in white */
     .poster-end .poster-brand > span { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
+    .poster-end .end-cta { position: absolute; left: 50%; bottom: 2.5%; transform: translateX(-50%); font-size: clamp(11px, 1.15cqw, 17px); }
+    @media (max-width: 600px) {
+      .poster-end .end-cta { position: relative; left: auto; bottom: auto; transform: none; display: table; margin: 18px auto 22px; }
+    }
 
     /* "Sign up for the launch" under the closing poster's strapline: always visible, jumps back up to the form */
     .end-cta {
-      margin-top: 1.4cqw; padding: .7em 1.3em; border-radius: 999px; border: 1px solid rgba(255,255,255,.6);
+      padding: .7em 1.3em; border-radius: 999px; border: 1px solid rgba(255,255,255,.6);
       color: #fff; text-decoration: none; font-size: clamp(11px, 1.5cqw, 20px); letter-spacing: .04em; white-space: nowrap;
       background: rgba(20,16,10,.25); backdrop-filter: blur(6px); transition: border-color .2s;
     }
@@ -228,13 +231,13 @@
   <section class="poster poster-end" aria-label="Mods for your fits. STugZ, a clothing hardware company.">
     <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
       <span class="placeholder">Closing image goes here</span>
-      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for <br>your <em>fits.</em></p>
-      <div class="poster-brand">
-        <img src="logo.png" alt="" aria-hidden="true">
-        <span aria-hidden="true">A clothing hardware company</span>
-        <a class="end-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the launch <span class="arrow" aria-hidden="true">↑</span></span></a>
+      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
+      <div class="poster-brand" aria-hidden="true">
+        <img src="logo.png" alt="">
+        <span>A clothing hardware company</span>
       </div>
     </div>
+    <a class="end-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the launch <span class="arrow" aria-hidden="true">↑</span></span></a>
   </section>
 
   <footer>
