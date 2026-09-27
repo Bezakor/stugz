@@ -94,20 +94,20 @@
       --fit: calc(max(100svh, 420px) * 2528 / 1684);
       width: min(max(100%, var(--fit)), calc(var(--fit) * 1.12));
       flex-shrink: 0;
-      background: #b7b6c8 url("background.jpg") center / cover no-repeat;
+      background: #b7b6c8 var(--img) center / cover no-repeat;  /* --img is set on each poster in the HTML */
       container-type: inline-size;   /* lets the text below size itself in % of the photo's width (cqw) */
       display: grid; place-items: center;
     }
-    .stage .placeholder { color: #55535f; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
+    .stage .placeholder { position: absolute; left: 50%; top: 88%; transform: translateX(-50%); white-space: nowrap; color: #55535f; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
     .stage.loaded .placeholder { display: none; }
 
     /* Live text laid over the photo. Positions are % of the photo, sizes are % of its width. */
-    .poster h1 {
+    .poster-title {
       position: absolute; left: 9.1%; top: 6.6%; margin: 0;
       font-family: var(--serif); font-weight: 400; color: #ffffff;  /* "for your fits." in white; "Mods" has its own pixel fill */
       font-size: 24.2cqw; line-height: .908; letter-spacing: -0.02em; white-space: nowrap;
     }
-    .poster h1 em { font-style: italic; }
+    .poster-title em { font-style: italic; }
     .poster-brand {
       position: absolute; left: 71.4%; top: 77%; transform: translateX(-50%);
       display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: var(--ink);
@@ -162,9 +162,9 @@
 
   <!-- Poster: the first screen. The whole image always shows, on a matching dark background. -->
   <header class="poster">
-    <div class="stage" id="photo">
+    <div class="stage" data-img="background.jpg" style="--img: url('background.jpg')">
       <span class="placeholder">Background image goes here</span>
-      <h1><span class="pixel-text" id="mods">Mods</span> for<br>your <em>fits.</em></h1>
+      <h1 class="poster-title"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></h1>
       <div class="poster-brand">
         <img src="logo.png" alt="STugZ">
         <span>A clothing hardware company</span>
@@ -198,6 +198,18 @@
       <p class="punch">Buy less. <em>Mod more.</em><br>Re-wear. Upsell.</p>
     </div>
   </main>
+
+  <!-- Closing poster: same layout and live text as the top one. Upload the photo as background-2.jpg. -->
+  <section class="poster poster-end" aria-label="Mods for your fits. STugZ, a clothing hardware company.">
+    <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
+      <span class="placeholder">Closing image goes here (background-2.jpg)</span>
+      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
+      <div class="poster-brand" aria-hidden="true">
+        <img src="logo.png" alt="">
+        <span>A clothing hardware company</span>
+      </div>
+    </div>
+  </section>
 
   <footer>
     <div class="wrap">
@@ -301,20 +313,21 @@
       btn.addEventListener('blur', px.stop);
     });
 
-    // "Mods": pixels always running inside the letters, paused when scrolled out of view
-    (() => {
-      const word = document.getElementById('mods');
+    // "Mods" (in both posters): pixels always running inside the letters, paused when scrolled out of view
+    document.querySelectorAll('.pixel-text').forEach(word => {
       const px = neonPixels(word, (c, PX) => {
         word.style.backgroundImage = `url(${c.toDataURL()})`;
         word.style.backgroundSize = `${c.width * PX}px ${c.height * PX}px`;
       }, () => Math.max(4, Math.round(parseFloat(getComputedStyle(word).fontSize) / 26)));  // pixels scale with the text
       new IntersectionObserver(([entry]) => entry.isIntersecting ? px.start() : px.stop()).observe(word);
-    })();
+    });
 
-    // Hide the placeholder label once the background photo loads
-    const photo = new Image();
-    photo.onload = () => document.getElementById('photo').classList.add('loaded');
-    photo.src = 'background.jpg';
+    // Hide each poster's placeholder label once its photo loads
+    document.querySelectorAll('.stage[data-img]').forEach(stage => {
+      const photo = new Image();
+      photo.onload = () => stage.classList.add('loaded');
+      photo.src = stage.dataset.img;
+    });
 
     // Cursor trail: a dense cloud of square pixels that dissolves behind the mouse,
     // or behind your finger on phones and tablets (tapping, swiping, scrolling)
