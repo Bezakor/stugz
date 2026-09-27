@@ -63,14 +63,14 @@
     .signup input::placeholder { color: #9a968c; }
     .signup input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
     .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-    /* Notify me: big neon pixels fill the button on hover */
-    .btn.pixels { position: relative; overflow: hidden; isolation: isolate; }
-    .btn.pixels:hover { background: var(--ink); }
-    .btn.pixels canvas {
+    /* Pixel hover (Notify me, Sign up for the drop): big neon pixels fill the button on hover */
+    .pixels { position: relative; overflow: hidden; isolation: isolate; }
+    .pixels:hover { background: var(--ink); }
+    .pixels canvas {
       position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1;
       opacity: 0; transition: opacity .25s; image-rendering: pixelated;
     }
-    .btn.pixels:hover canvas, .btn.pixels:focus-visible canvas { opacity: 1; }
+    .pixels:hover canvas, .pixels:focus-visible canvas { opacity: 1; }
     .btn.pixels span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
     .signup-msg.error { color: #b3261e; }
     .btn:disabled { opacity: .6; cursor: wait; }
@@ -128,8 +128,10 @@
       color: var(--ink); text-decoration: none; font-size: 14px; letter-spacing: .04em; white-space: nowrap;
       background: rgba(255,255,255,.35); backdrop-filter: blur(6px); transition: background .2s, color .2s;
     }
-    .poster-cta:hover, .poster-cta:focus-visible { background: var(--ink); color: var(--bg); }
-    .poster-cta span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+    .poster-cta:hover, .poster-cta:focus-visible { color: #fff; border-color: transparent; }
+    .poster-cta .label { position: relative; }
+    .poster-cta:hover .label, .poster-cta:focus-visible .label { text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
+    .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
     @keyframes nudge { 50% { transform: translateY(3px); } }
 
     /* Content below the poster */
@@ -150,7 +152,7 @@
       .content { padding-block: 48px 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .poster-cta span { animation: none; }
+      .poster-cta .arrow { animation: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
       .btn:hover { transform: none; }
     }
@@ -168,7 +170,7 @@
         <span>A clothing hardware company</span>
       </div>
     </div>
-    <a class="poster-cta" href="#signup">Sign up for the drop <span aria-hidden="true">↓</span></a>
+    <a class="poster-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the drop <span class="arrow" aria-hidden="true">↓</span></span></a>
   </header>
 
   <main class="content wrap">
@@ -251,7 +253,7 @@
     });
 
     // Neon pixel animation: big pixels that shuffle through neon colours.
-    // Used by the Notify me button (on hover) and the word "Mods" in the headline.
+    // Used by the pixel-hover buttons and the word "Mods" in the headline.
     const neonPixels = (sizeFrom, draw, pixelSize = () => 11) => {  // pixelSize: px on the page (bigger = chunkier)
       const TICK = 70;            // ms between colour changes (smaller = faster)
       const CHANGE = 0.45;        // share of pixels that change colour each tick
@@ -286,9 +288,8 @@
       };
     };
 
-    // Notify me button: pixels while hovered
-    (() => {
-      const btn = document.getElementById('notify');
+    // Buttons with the pixel hover (Notify me, Sign up for the drop): pixels while hovered or focused
+    document.querySelectorAll('.pixels').forEach(btn => {
       const shown = btn.querySelector('canvas');
       const px = neonPixels(btn, c => {
         if (shown.width !== c.width || shown.height !== c.height) { shown.width = c.width; shown.height = c.height; }
@@ -298,7 +299,7 @@
       btn.addEventListener('pointerleave', px.stop);
       btn.addEventListener('focus', px.start);
       btn.addEventListener('blur', px.stop);
-    })();
+    });
 
     // "Mods": pixels always running inside the letters, paused when scrolled out of view
     (() => {
