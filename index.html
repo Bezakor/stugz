@@ -3,255 +3,244 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>STugZ — Mods for your fits</title>
-  <meta name="description" content="STugZ is a clothing hardware company. Mods for your fits.">
+  <title>Stugz — Luxury mods for your fits</title>
+  <meta name="description" content="Stugz is a clothing hardware company. Luxury mods for your fits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #eeeee7;
-      --ink: #1b1a17;
-      --muted: #6f6a61;
-      --line: #dcdcd2;
-      --accent: #c85973;
-      --card: #e4e4dc;
-      --serif: "Instrument Serif", Georgia, serif;
+      --ink: #0e0d0b;        /* near-black, warm */
+      --ink-2: #16140f;      /* raised surface */
+      --ivory: #ece6da;      /* main text */
+      --taupe: #8f877a;      /* secondary text */
+      --line: rgba(236, 230, 218, .16);  /* hairlines */
+      --brass: #b89a67;      /* the one accent: antique brass, like clothing hardware */
+      --serif: "Cormorant Garamond", "Garamond", "Times New Roman", serif;
       --sans: "Inter", system-ui, -apple-system, sans-serif;
+      --ease: cubic-bezier(.22, .61, .36, 1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; background: var(--ink); }
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-size: 17px;
-      line-height: 1.6;
+      background: var(--ink); color: var(--ivory);
+      font-family: var(--sans); font-size: 15px; line-height: 1.75;
       -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    ::selection { background: var(--brass); color: var(--ink); }
 
-    /* Buttons */
+    /* Small tracked capitals used for labels, buttons and the strapline */
+    .caps { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .32em; text-transform: uppercase; }
+
+    /* Top bar: sits over the hero, gains a dark glass background once you scroll */
+    .bar {
+      position: fixed; inset: 0 0 auto 0; z-index: 20;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+      padding: 22px clamp(20px, 4vw, 56px);
+      transition: background .6s var(--ease), padding .6s var(--ease), border-color .6s var(--ease);
+      border-bottom: 1px solid transparent;
+    }
+    .bar.scrolled { background: rgba(14, 13, 11, .72); backdrop-filter: blur(14px); padding-block: 14px; border-color: var(--line); }
+    .bar .left { color: var(--taupe); }
+    .bar .left b { color: var(--brass); font-weight: 500; }
+    .bar img { height: 22px; width: auto; display: block; filter: invert(1) brightness(.93); }
+    .bar .right { justify-self: end; text-decoration: none; color: var(--ivory); transition: color .4s var(--ease); }
+    .bar .right:hover { color: var(--brass); }
+
+    /* Full-screen photo sections: darkened and slightly desaturated for a quiet, editorial mood */
+    .frame {
+      position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden;
+      display: grid; place-items: center; text-align: center; isolation: isolate;
+    }
+    .frame::before {
+      content: ""; position: absolute; inset: 0; z-index: -2;
+      background: var(--ink-2) var(--img) center / cover no-repeat;
+      filter: grayscale(.35) brightness(.62) contrast(1.06);
+      transform: scale(1.04); transition: transform 2.4s var(--ease);
+    }
+    .frame.in::before { transform: scale(1); }  /* a slow settle as the photo appears */
+    .frame::after {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background: radial-gradient(ellipse at center, rgba(14,13,11,.05) 0%, rgba(14,13,11,.55) 75%),
+                  linear-gradient(to bottom, rgba(14,13,11,.35), transparent 30%, transparent 60%, var(--ink));
+    }
+    .frame-inner { padding: 120px 24px 96px; max-width: 1100px; }
+
+    .display {
+      font-family: var(--serif); font-weight: 300; line-height: .95; letter-spacing: -0.015em;
+      font-size: clamp(52px, 9vw, 136px); text-wrap: balance;
+    }
+    .display em { font-style: italic; }
+    .strap { color: var(--ivory); opacity: .78; margin-top: 30px; }
+    .rule { width: 56px; height: 1px; background: var(--brass); margin: 34px auto; border: 0; }
+
+    /* Buttons: hairline outline, tracked capitals; hover slowly fills with ivory */
     .btn {
-      display: inline-block; padding: 12px 22px; border-radius: 999px;
-      background: var(--ink); color: var(--bg); text-decoration: none;
-      font-weight: 500; font-size: 15px; border: none; cursor: pointer;
-      transition: transform .2s, background .2s;
+      display: inline-block; position: relative; overflow: hidden; isolation: isolate;
+      padding: 16px 34px; border: 1px solid rgba(236,230,218,.55); border-radius: 0;
+      background: transparent; color: var(--ivory); text-decoration: none; cursor: pointer;
+      transition: color .5s var(--ease), border-color .5s var(--ease);
     }
-    .btn:hover { transform: translateY(-2px); background: var(--accent); }
-
-    /* Logo and strapline above the body copy */
-    .brand { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 64px; }
-    .brand img { height: 56px; width: auto; }
-    .brand span { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-    .brand + .intro { margin-top: 32px; }
-
-    /* Intro text */
-    .intro { max-width: 400px; margin: 44px auto 0; padding-inline: 12px; }
-    .intro p { font-size: 15px; line-height: 1.7; color: var(--muted); margin-bottom: 14px; }
-    .intro .punch { font-family: var(--serif); font-size: 32px; line-height: 1.2; color: var(--ink); margin-top: 26px; }
-    .intro .punch em { font-style: italic; }
-    /* Email signup */
-    .signup { margin: 40px auto 0; max-width: 440px; }
-    .signup label { display: block; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
-    .signup-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .signup input {
-      flex: 1 1 220px; min-width: 0; padding: 12px 20px; border-radius: 999px;
-      border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit; font-size: 15px;
+    .btn::before {
+      content: ""; position: absolute; inset: 0; background: var(--ivory); z-index: -1;
+      transform: scaleX(0); transform-origin: right; transition: transform .6s var(--ease);
     }
-    .signup input::placeholder { color: #9a968c; }
-    .signup input:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
-    .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-    /* Pixel hover (Notify me, Sign up for the drop): big neon pixels fill the button on hover */
-    .pixels { position: relative; overflow: hidden; isolation: isolate; }
-    .pixels:hover { background: var(--ink); }
-    .pixels canvas {
-      position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1;
-      opacity: 0; transition: opacity .25s; image-rendering: pixelated;
-    }
-    .pixels:hover canvas, .pixels:focus-visible canvas { opacity: 1; }
-    .btn.pixels span { position: relative; font-weight: 600; text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
-    .signup-msg.error { color: #b3261e; }
-    .btn:disabled { opacity: .6; cursor: wait; }
-    .signup-msg { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .btn:hover, .btn:focus-visible { color: var(--ink); border-color: var(--ivory); }
+    .btn:hover::before, .btn:focus-visible::before { transform: scaleX(1); transform-origin: left; }
+    .btn:focus-visible { outline: 1px solid var(--brass); outline-offset: 4px; }
 
-    /* Fade-in on scroll */
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+    /* Thin animated line hinting to scroll */
+    .scroll-hint { position: absolute; left: 50%; bottom: 28px; width: 1px; height: 56px; background: var(--line); overflow: hidden; }
+    .scroll-hint::after { content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--ivory); animation: drip 2.4s var(--ease) infinite; }
+    @keyframes drip { to { top: 100%; } }
+
+    /* Manifesto */
+    section.text { padding: clamp(96px, 14vw, 180px) 24px; }
+    .column { max-width: 520px; margin: 0 auto; text-align: center; }
+    .label { color: var(--brass); margin-bottom: 36px; display: block; }
+    .column p { color: var(--taupe); margin-bottom: 18px; }
+    .column p.lead { font-family: var(--serif); font-weight: 300; font-size: clamp(26px, 3.2vw, 34px); line-height: 1.3; color: var(--ivory); margin-bottom: 30px; }
+    .column .brandmark { height: 30px; width: auto; filter: invert(1) brightness(.93); margin: 0 auto 16px; display: block; }
+
+    /* Signup */
+    section.signup-wrap { padding: 0 24px clamp(110px, 14vw, 170px); }
+    .signup { max-width: 520px; margin: 0 auto; text-align: center; scroll-margin-top: 110px; }
+    .signup h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(38px, 5vw, 56px); line-height: 1.05; margin-bottom: 14px; }
+    .signup h2 em { font-style: italic; }
+    .signup .sub { color: var(--taupe); margin-bottom: 44px; }
+    .signup-row { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+    .signup input[type=email] {
+      flex: 1 1 260px; min-width: 0; padding: 12px 2px; background: transparent; color: var(--ivory);
+      border: 0; border-bottom: 1px solid rgba(236,230,218,.35); border-radius: 0;
+      font: inherit; font-size: 16px; letter-spacing: .02em; transition: border-color .4s var(--ease);
+    }
+    .signup input[type=email]::placeholder { color: #6d675d; }
+    .signup input[type=email]:focus { outline: none; border-color: var(--brass); }
+    .signup .btn { flex: 0 0 auto; }
+    .signup-msg { min-height: 26px; margin-top: 22px; color: var(--taupe); font-size: 14px; }
+    .signup-msg.error { color: #d08a7a; }
+    .btn:disabled { opacity: .5; cursor: wait; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* Closing photo */
+    .frame.closing .display { font-size: clamp(44px, 7vw, 104px); }
+
+    footer { border-top: 1px solid var(--line); padding: 34px clamp(20px, 4vw, 56px); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: var(--taupe); }
+    footer img { height: 16px; width: auto; filter: invert(1) brightness(.6); }
+
+    /* Slow, gentle reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity 1.4s var(--ease), transform 1.4s var(--ease); }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* Poster: fills the first screen on a dark background. The "stage" keeps the photo's shape,
-       so the live text on top of it always lands in the same spot on the photo at any screen size. */
-    .poster {
-      height: 100vh; height: 100svh; min-height: 420px; position: relative;
-      /* matches the left/right edges of the photo, so any spare space either side blends in */
-      background: linear-gradient(#a1a2b4, #b3b3c7); display: grid; place-items: center; overflow: hidden;
+    /* Cursor: a fine dot with a thin ring that trails behind it. It inverts over whatever is underneath. */
+    .has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
+    .has-cursor input { cursor: text; }
+    .cur-dot, .cur-ring { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 100; border-radius: 50%; mix-blend-mode: difference; opacity: 0; }
+    .cur-dot { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background: #fff; transition: opacity .4s var(--ease); }
+    .cur-ring {
+      width: 34px; height: 34px; margin: -17px 0 0 -17px; border: 1px solid rgba(255,255,255,.75);
+      transition: opacity .4s var(--ease), width .5s var(--ease), height .5s var(--ease), margin .5s var(--ease), background-color .5s var(--ease), border-color .5s var(--ease);
     }
-    .stage {
-      position: relative; aspect-ratio: 2528 / 1684;
-      /* Fill the screen width, trimming at most ~6% off the top and bottom of the photo;
-         on very wide screens it stops growing and the background colour shows at the sides */
-      --fit: calc(max(100svh, 420px) * 2528 / 1684);
-      width: min(max(100%, var(--fit)), calc(var(--fit) * 1.12));
-      flex-shrink: 0;
-      background: #b7b6c8 var(--img) center / cover no-repeat;  /* --img is set on each poster in the HTML */
-      container-type: inline-size;   /* lets the text below size itself in % of the photo's width (cqw) */
-      display: grid; place-items: center;
-    }
-    .stage .placeholder { position: absolute; left: 50%; top: 88%; transform: translateX(-50%); white-space: nowrap; color: #55535f; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; }
-    .stage.loaded .placeholder { display: none; }
+    .cursor-on .cur-dot, .cursor-on .cur-ring { opacity: 1; }
+    .cursor-link .cur-ring { width: 64px; height: 64px; margin: -32px 0 0 -32px; background-color: rgba(255,255,255,.08); border-color: rgba(255,255,255,.4); }
+    .cursor-on.cursor-link .cur-dot { opacity: 0; }
+    .cursor-on.cursor-text .cur-ring, .cursor-on.cursor-text .cur-dot { opacity: 0; }
+    /* Touch: a faint ring ripples out where you tap */
+    .ripple { position: fixed; width: 12px; height: 12px; margin: -6px 0 0 -6px; border: 1px solid rgba(236,230,218,.7); border-radius: 50%; pointer-events: none; z-index: 100; animation: ripple 1s var(--ease) forwards; }
+    @keyframes ripple { to { transform: scale(7); opacity: 0; } }
 
-    /* Live text laid over the photo. Positions are % of the photo, sizes are % of its width. */
-    .poster-title {
-      position: absolute; left: 9.1%; top: 6.6%; margin: 0;
-      font-family: var(--serif); font-weight: 400; color: #ffffff;  /* "for your fits." in white; "Mods" has its own pixel fill */
-      font-size: 24.2cqw; line-height: .908; letter-spacing: -0.02em; white-space: nowrap;
-    }
-    .poster-title em { font-style: italic; }
-    .poster-brand {
-      position: absolute; left: 71.4%; top: 77%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; color: var(--ink);
-    }
-    .poster-brand img { width: 11.4cqw; height: auto; }
-    .poster-brand > span { font-size: max(8px, 1.12cqw); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
-
-    /* "Mods": letters filled with the shuffling neon pixels */
-    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-      .pixel-text {
-        color: transparent; -webkit-background-clip: text; background-clip: text;
-        background-color: var(--ink); background-repeat: no-repeat; image-rendering: pixelated;
-      }
-    }
-    .poster-cta {
-      position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%);  /* centred at the bottom of the poster */
-      padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(27,26,23,.45);
-      color: var(--ink); text-decoration: none; font-size: 14px; letter-spacing: .04em; white-space: nowrap;
-      background: rgba(255,255,255,.35); backdrop-filter: blur(6px); transition: background .2s, color .2s;
-    }
-    .poster-cta:hover, .poster-cta:focus-visible { color: #fff; border-color: transparent; }
-    .poster-cta .label { position: relative; }
-    .poster-cta:hover .label, .poster-cta:focus-visible .label { text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
-    .poster-cta .arrow { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
-    @keyframes nudge { 50% { transform: translateY(3px); } }
-
-    /* Closing poster: laid out like the supplied reference. The photo always spans the full width at its
-       natural shape (never cropped); "Mods for / your fits." fills the upper two-thirds, centred; the white
-       logo and strapline are centred near the bottom; the button sits at the very bottom (below the photo on phones). */
-    .poster-end { height: auto; min-height: 0; display: block; background: #4a2f2c; }
-    .poster-end .stage { width: 100%; aspect-ratio: 2528 / 1684; background-color: #6b4a44; }
-    .poster-end .poster-title { left: 0; right: 0; top: 7.4%; text-align: center; font-size: 24cqw; line-height: .89; }
-    .poster-end .poster-brand { left: 50%; top: 79.5%; color: #f5f3ee; }
-    .poster-end .poster-brand img { width: 11cqw; filter: invert(1); }  /* black logo file shown in white */
-    .poster-end .poster-brand > span { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
-    .poster-end .end-cta { position: absolute; left: 50%; bottom: 2.5%; transform: translateX(-50%); font-size: clamp(11px, 1.15cqw, 17px); }
-    @media (max-width: 600px) {
-      .poster-end .end-cta { position: relative; left: auto; bottom: auto; transform: none; display: table; margin: 18px auto 22px; }
-    }
-
-    /* "Sign up for the launch" under the closing poster's strapline: always visible, jumps back up to the form */
-    .end-cta {
-      padding: .7em 1.3em; border-radius: 999px; border: 1px solid rgba(255,255,255,.6);
-      color: #fff; text-decoration: none; font-size: clamp(11px, 1.5cqw, 20px); letter-spacing: .04em; white-space: nowrap;
-      background: rgba(20,16,10,.25); backdrop-filter: blur(6px); transition: border-color .2s;
-    }
-    .end-cta .label { position: relative; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
-    .end-cta:hover, .end-cta:focus-visible { border-color: transparent; }
-    .end-cta:hover .label, .end-cta:focus-visible .label { text-shadow: 0 0 2px rgba(0,0,0,.9), 0 1px 3px rgba(0,0,0,.7); }
-    .end-cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-    .end-cta .arrow { display: inline-block; animation: nudge-up 1.6s ease-in-out infinite; }
-    @keyframes nudge-up { 50% { transform: translateY(-3px); } }
-
-    /* Content below the poster */
-    .content { padding-block: 72px 96px; text-align: center; }
-    .content .signup { margin-top: 0; }
-    #signup { scroll-margin-top: 56px; }  /* leave space above the form when a "Sign up" button jumps to it */
-
-    footer { padding: 40px 0; font-size: 14px; color: var(--muted); }
-    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-
-    #trail { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
-
-    /* Phones and other tall screens: a wide poster can't fill the screen without cropping its lettering,
-       so show it edge to edge at its natural shape, with the signup form straight after it */
-    @media (max-aspect-ratio: 1/1) {
-      .poster { height: auto; min-height: 0; }
-      .stage { width: 100%; }
-      .poster-cta { display: none; }
-      .content { padding-block: 48px 72px; }
+    @media (max-width: 640px) {
+      .bar { grid-template-columns: auto 1fr; }
+      .bar .left { display: none; }
+      .signup .btn { width: 100%; }
+      footer { justify-content: center; text-align: center; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .poster-cta .arrow, .end-cta .arrow { animation: none; }
+      html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
-      .btn:hover { transform: none; }
+      .frame::before { transform: none; transition: none; }
+      .scroll-hint::after { animation: none; top: 0; }
+      .btn::before { transition: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Poster: the first screen. The whole image always shows, on a matching dark background. -->
-  <header class="poster">
-    <div class="stage" data-img="background.jpg" style="--img: url('background.jpg')">
-      <span class="placeholder">Background image goes here</span>
-      <h1 class="poster-title"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></h1>
-      <div class="poster-brand">
-        <img src="logo.png" alt="STugZ">
-        <span>A clothing hardware company</span>
-      </div>
-    </div>
-    <a class="poster-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the drop <span class="arrow" aria-hidden="true">↓</span></span></a>
+  <header class="bar" id="bar">
+    <span class="left caps">Nº <b>01</b> — The launch drop</span>
+    <a href="#top" aria-label="Stugz home"><img src="logo-jap.png" alt="Stugz"></a>
+    <a class="right caps" href="#signup">Notify me</a>
   </header>
 
-  <main class="content wrap">
-    <!-- Signups go to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
-    <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
-      <input type="hidden" name="_subject" value="New STugZ launch drop signup">
-      <!-- Spam trap: hidden from people, bots fill it in and Formspree ignores those submissions -->
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
-      <label for="signup-email">Signup for the launch drop</label>
-      <div class="signup-row">
-        <input type="email" id="signup-email" name="email" placeholder="you@email.com" autocomplete="email" required>
-        <button class="btn pixels" id="notify" type="submit"><canvas aria-hidden="true"></canvas><span>Notify me</span></button>
+  <main id="top">
+    <!-- Opening photo (background.jpg) -->
+    <section class="frame" style="--img: url('background.jpg')">
+      <div class="frame-inner">
+        <h1 class="display reveal">Luxury mods for your <em>fits.</em></h1>
+        <p class="strap caps reveal">A clothing hardware company</p>
+        <hr class="rule reveal">
+        <a class="btn caps reveal" href="#signup">Sign up for the drop</a>
       </div>
-      <div class="signup-msg" id="signup-msg" aria-live="polite"></div>
-    </form>
-    <div class="brand reveal">
-      <img src="logo.png" alt="STugZ">
-      <span>A clothing hardware company</span>
-    </div>
-    <div class="intro reveal">
-      <p>Your phone gets mods. Your car gets mods. But your clothes? They stay exactly the way they left the factory.</p>
-      <p>We think that's strange.</p>
-      <p>STugZ are premium hardware mods for clothing. Small, well-made mods that change how your fits look, work and feel. Modify your thrifts to re-wear them or upsell them.</p>
-      <p>STugZ is for people who treat getting dressed like a creative act. So every outfit can be upgraded, personalised, remixed and made yours.</p>
-      <p class="punch">Buy less. <em>Mod more.</em><br>Re-wear. Upsell.</p>
-    </div>
+      <span class="scroll-hint" aria-hidden="true"></span>
+    </section>
+
+    <!-- Manifesto -->
+    <section class="text">
+      <div class="column">
+        <img class="brandmark reveal" src="logo-jap.png" alt="Stugz">
+        <span class="label caps reveal">The manifesto</span>
+        <p class="lead reveal">Your phone gets mods. Your car gets mods. But your clothes? They stay exactly the way they left the factory.</p>
+        <p class="reveal">We think that's strange.</p>
+        <p class="reveal">Stugz are premium hardware mods for clothing. Small, well-made mods that change how your fits look, work and feel. Modify your thrifts to re-wear them or upsell them.</p>
+        <p class="reveal">Stugz is for people who treat getting dressed like a creative act. So every outfit can be upgraded, personalised, remixed and made yours.</p>
+      </div>
+    </section>
+
+    <!-- Signup: goes to Formspree (form mdekwbbr). action/method also work if JavaScript is off. -->
+    <section class="signup-wrap">
+      <form class="signup reveal" id="signup" action="https://formspree.io/f/mdekwbbr" method="POST" novalidate>
+        <input type="hidden" name="_subject" value="New Stugz launch drop signup">
+        <!-- Spam trap: hidden from people, bots fill it in and Formspree ignores those submissions -->
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+        <span class="label caps">Nº 01 — The launch drop</span>
+        <h2>Be first to <em>mod.</em></h2>
+        <p class="sub">Signup for the launch drop. One email when it goes live, nothing else.</p>
+        <div class="signup-row">
+          <label for="signup-email" class="visually-hidden">Email address</label>
+          <input type="email" id="signup-email" name="email" placeholder="Your email address" autocomplete="email" required>
+          <button class="btn caps" id="notify" type="submit">Notify me</button>
+        </div>
+        <div class="signup-msg" id="signup-msg" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- Closing photo (background-2.jpg) -->
+    <section class="frame closing" style="--img: url('background-2.jpg')">
+      <div class="frame-inner">
+        <p class="display reveal">Buy less. <em>Mod more.</em><br>Re-wear. Upsell.</p>
+        <hr class="rule reveal">
+        <a class="btn caps reveal" href="#signup">Sign up for the launch</a>
+      </div>
+    </section>
   </main>
 
-  <!-- Closing poster: same layout and live text as the top one. Upload the photo as background-2.jpg. -->
-  <section class="poster poster-end" aria-label="Mods for your fits. STugZ, a clothing hardware company.">
-    <div class="stage" data-img="background-2.jpg" style="--img: url('background-2.jpg')">
-      <span class="placeholder">Closing image goes here</span>
-      <p class="poster-title" aria-hidden="true"><span class="pixel-text">Mods</span> for<br>your <em>fits.</em></p>
-      <div class="poster-brand" aria-hidden="true">
-        <img src="logo.png" alt="">
-        <span>A clothing hardware company</span>
-      </div>
-    </div>
-    <a class="end-cta pixels" href="#signup"><canvas aria-hidden="true"></canvas><span class="label">Sign up for the launch <span class="arrow" aria-hidden="true">↑</span></span></a>
-  </section>
-
   <footer>
-    <div class="wrap">
-      <span>© 2026 STugZ — A clothing hardware company</span>
-      <span>Mods for your fits.</span>
-    </div>
+    <img src="logo-jap.png" alt="Stugz">
+    <span class="caps">© 2026 — A clothing hardware company</span>
   </footer>
 
   <script>
+    // Slow reveal as things scroll into view; photos settle from a slight zoom
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.15 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    document.querySelectorAll('.reveal, .frame').forEach(el => io.observe(el));
+
+    // Top bar gets a dark glass background once you scroll past the top
+    const bar = document.getElementById('bar');
+    const onScroll = () => bar.classList.toggle('scrolled', scrollY > 40);
+    addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
     // Email signup: check the address, then send it to Formspree without leaving the page
     document.getElementById('signup').addEventListener('submit', async e => {
@@ -273,11 +262,7 @@
       show('Signing you up…', false);
 
       try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
-        });
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
         if (res.ok) {
           show("You're on the list. We'll email you when the drop goes live.", false);
           form.reset();
@@ -293,143 +278,42 @@
       }
     });
 
-    // Neon pixel animation: big pixels that shuffle through neon colours.
-    // Used by the pixel-hover buttons and the word "Mods" in the headline.
-    const neonPixels = (sizeFrom, draw, pixelSize = () => 11) => {  // pixelSize: px on the page (bigger = chunkier)
-      const TICK = 70;            // ms between colour changes (smaller = faster)
-      const CHANGE = 0.45;        // share of pixels that change colour each tick
-      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      let raf = null, lastTick = 0, hues = [];
+    // Cursor (mouse and trackpad): a fine dot, with a thin ring that trails softly behind it.
+    // The ring widens over links and buttons, and steps aside over the email field.
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches && !still) {
+      const root = document.documentElement;
+      root.classList.add('has-cursor');
+      const dot = document.createElement('div'); dot.className = 'cur-dot';
+      const ring = document.createElement('div'); ring.className = 'cur-ring';
+      document.body.append(ring, dot);
+      const EASE = 0.14;          // how quickly the ring catches up (smaller = lazier)
+      let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;
 
-      const frame = now => {
-        const PX = pixelSize();
-        const w = Math.ceil(sizeFrom.offsetWidth / PX), h = Math.ceil(sizeFrom.offsetHeight / PX);
-        if (canvas.width !== w || canvas.height !== h) {
-          canvas.width = w; canvas.height = h;
-          hues = Array.from({ length: w * h }, () => Math.random() * 360);
-        }
-        if (now - lastTick >= TICK) {
-          lastTick = now;
-          const base = now * 0.3;   // the overall colour mix races round the rainbow
-          for (let i = 0; i < hues.length; i++) {
-            if (Math.random() < CHANGE) hues[i] = base + Math.random() * 240;
-            ctx.fillStyle = `hsl(${hues[i] % 360}, 100%, 55%)`;
-            ctx.fillRect(i % w, Math.floor(i / w), 1, 1);
-          }
-          draw(canvas, PX);
-        }
-        if (!still) raf = requestAnimationFrame(frame);
-      };
-      return {
-        canvas,
-        start: () => { if (!raf) { lastTick = 0; raf = requestAnimationFrame(frame); } },  // with reduced motion, draws one still frame
-        stop: () => { cancelAnimationFrame(raf); raf = null; }
-      };
-    };
-
-    // Buttons with the pixel hover (Notify me, Sign up for the drop): pixels while hovered or focused
-    document.querySelectorAll('.pixels').forEach(btn => {
-      const shown = btn.querySelector('canvas');
-      const px = neonPixels(btn, c => {
-        if (shown.width !== c.width || shown.height !== c.height) { shown.width = c.width; shown.height = c.height; }
-        shown.getContext('2d').drawImage(c, 0, 0);
+      addEventListener('pointermove', e => {
+        x = e.clientX; y = e.clientY;
+        dot.style.transform = `translate(${x}px, ${y}px)`;
+        root.classList.add('cursor-on');
+        root.classList.toggle('cursor-link', !!e.target.closest('a, button'));
+        root.classList.toggle('cursor-text', !!e.target.closest('input'));
       });
-      btn.addEventListener('pointerenter', px.start);
-      btn.addEventListener('pointerleave', px.stop);
-      btn.addEventListener('focus', px.start);
-      btn.addEventListener('blur', px.stop);
-    });
-
-    // "Mods" (in both posters): pixels always running inside the letters, paused when scrolled out of view
-    document.querySelectorAll('.pixel-text').forEach(word => {
-      const px = neonPixels(word, (c, PX) => {
-        word.style.backgroundImage = `url(${c.toDataURL()})`;
-        word.style.backgroundSize = `${c.width * PX}px ${c.height * PX}px`;
-      }, () => Math.max(4, Math.round(parseFloat(getComputedStyle(word).fontSize) / 26)));  // pixels scale with the text
-      new IntersectionObserver(([entry]) => entry.isIntersecting ? px.start() : px.stop()).observe(word);
-    });
-
-    // Hide each poster's placeholder label once its photo loads
-    document.querySelectorAll('.stage[data-img]').forEach(stage => {
-      const photo = new Image();
-      photo.onload = () => stage.classList.add('loaded');
-      photo.src = stage.dataset.img;
-    });
-
-    // Cursor trail: a dense cloud of square pixels that dissolves behind the mouse,
-    // or behind your finger on phones and tablets (tapping, swiping, scrolling)
-    const canTrail = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (canTrail) {
-      const PIXEL = 8;            // size of each square, in px
-      const SPREAD = 3;           // how many pixels out from the cursor the cloud reaches
-      const LIFE = 700;           // how long a pixel lasts, in ms
-      // Neon colours: the base hue slowly cycles round the colour wheel,
-      // and each pixel gets a random nearby hue so the cloud is a mix
-      const HUE_SPEED = 0.12;     // how fast the colours change (degrees per ms)
-      const HUE_MIX = 90;         // how varied the colours are at any moment (degrees)
-      const neon = now => `hsl(${(now * HUE_SPEED + Math.random() * HUE_MIX) % 360}, 100%, 55%)`;
-
-      const canvas = document.createElement('canvas');
-      canvas.id = 'trail';
-      document.body.appendChild(canvas);
-      const ctx = canvas.getContext('2d');
-      const resize = () => {
-        const dpr = devicePixelRatio || 1;
-        canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      document.addEventListener('pointerleave', () => root.classList.remove('cursor-on'));
+      addEventListener('pointerdown', () => ring.animate([{ scale: 1 }, { scale: .8 }, { scale: 1 }], { duration: 400, easing: 'ease-out' }));
+      const loop = () => {
+        rx += (x - rx) * EASE; ry += (y - ry) * EASE;
+        ring.style.transform = `translate(${rx}px, ${ry}px)`;
+        requestAnimationFrame(loop);
       };
-      resize(); addEventListener('resize', resize);
-
-      const cells = new Map();    // "x,y" grid cell -> { time it was lit, colour }
-      let last = null, running = false;
-
-      const light = (x, y, now) => {
-        for (let n = 0; n < 5; n++) {
-          const dx = Math.round((Math.random() * 2 - 1) * SPREAD);
-          const dy = Math.round((Math.random() * 2 - 1) * SPREAD);
-          if (dx * dx + dy * dy > SPREAD * SPREAD) continue;
-          const gx = Math.floor(x / PIXEL) + dx, gy = Math.floor(y / PIXEL) + dy;
-          cells.set(gx + ',' + gy, { born: now - Math.random() * LIFE * 0.3, color: neon(now) });
-        }
-      };
-
-      const draw = now => {
-        ctx.clearRect(0, 0, innerWidth, innerHeight);
-        for (const [key, { born, color }] of cells) {
-          const age = (now - born) / LIFE;
-          // each pixel blinks out at a random moment near the end of its life
-          if (age >= 1 || (age > 0.5 && Math.random() < 0.06)) { cells.delete(key); continue; }
-          const [gx, gy] = key.split(',').map(Number);
-          ctx.fillStyle = color;
-          ctx.fillRect(gx * PIXEL, gy * PIXEL, PIXEL, PIXEL);
-        }
-        if (cells.size) requestAnimationFrame(draw); else running = false;
-      };
-
-      // Light up a line of pixels from the last point to this one, so fast moves leave no gaps
-      const trailTo = (x, y) => {
-        const now = performance.now();
-        const from = last || { x, y };
-        const steps = Math.max(1, Math.ceil(Math.hypot(x - from.x, y - from.y) / PIXEL));
-        for (let i = 1; i <= steps; i++) {
-          light(from.x + (x - from.x) * i / steps, from.y + (y - from.y) * i / steps, now);
-        }
-        last = { x, y };
-        if (!running) { running = true; requestAnimationFrame(draw); }
-      };
-
-      // Mouse and pen
-      addEventListener('pointermove', e => { if (e.pointerType !== 'touch') trailTo(e.clientX, e.clientY); });
-      document.addEventListener('pointerleave', () => { last = null; });
-
-      // Touch: touchmove keeps firing while the page scrolls under the finger.
-      // Passive listeners never block or slow down scrolling.
-      const touch = e => { const t = e.touches[0]; if (t) trailTo(t.clientX, t.clientY); };
-      addEventListener('touchstart', e => { last = null; touch(e); }, { passive: true });
-      addEventListener('touchmove', touch, { passive: true });
-      addEventListener('touchend', () => { last = null; }, { passive: true });
+      loop();
+    } else if (!still) {
+      // Touch screens: a faint ring ripples out where you tap
+      addEventListener('touchstart', e => {
+        const t = e.touches[0]; if (!t) return;
+        const r = document.createElement('span'); r.className = 'ripple';
+        r.style.left = t.clientX + 'px'; r.style.top = t.clientY + 'px';
+        document.body.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      }, { passive: true });
     }
   </script>
 </body>
